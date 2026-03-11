@@ -42,14 +42,13 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash",
+      // NOTE: Using Backticks (`) for multi-line string support
       systemInstruction: `You are Sirat AI. Every answer MUST start with a relevant Quranic Verse or Sahih Hadith reference if available. 
       If a topic is controversial, provide the majority view (Jumhoor) and maintain an extremely respectful tone. 
       Always include 'Wallahu A'lam' at the end of fatwa-related queries.`
     });
 
-    // FIX: Explicitly define the history type
     let history: { role: string; parts: { text: string }[] }[] = [];
-
     if (sessionId) {
       const existingChat = await prisma.chat.findUnique({ where: { id: sessionId } });
       if (existingChat) {
@@ -59,45 +58,6 @@ export async function POST(req: Request) {
         }));
       }
     }
-
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    const newUserMsg = { role: 'user', content: prompt };
-    const newAiMsg = { role: 'ai', content: text };
-
-    let savedChat;
-    if (sessionId) {
-      const existingChat = await prisma.chat.findUnique({ where: { id: sessionId } });
-      const updatedMessages = [...(existingChat?.messages as any[] || []), newUserMsg, newAiMsg];
-      
-      savedChat = await prisma.chat.update({
-        where: { id: sessionId },
-        data: { messages: updatedMessages }
-      });
-    } else {
-      savedChat = await prisma.chat.create({
-        data: {
-          title: prompt.slice(0, 40) + "...",
-          messages: [newUserMsg, newAiMsg],
-          userId: user.id
-        }
-      });
-    }
-
-    return NextResponse.json({ 
-      id: savedChat.id, 
-      answer: text,
-      messages: savedChat.messages 
-    });
-
-  } catch (error: any) {
-    console.error("POST Error:", error);
-    return NextResponse.json({ answer: "Error: " + (error.message || "Kuch masla hua.") }, { status: 500 });
-  }
-}
 
     const chat = model.startChat({ history });
     const result = await chat.sendMessage(prompt);
