@@ -31,11 +31,19 @@ export default function Hero() {
   );
 }
 
-function Card({ icon, title }) {
+// TypeScript ko batana par raha hai ke icon React ka element hai aur title ek string hai
+interface CardProps {
+  icon: React.ReactNode;
+  title: string;
+}
+
+function Card({ icon, title }: CardProps) {
   return (
     <div className='bg-white/50 border border-gray-200 p-6 rounded-xl flex flex-col items-center gap-3 hover:border-sirat-gold transition-colors cursor-pointer group'>
-      <div className='p-3 rounded-lg bg-gray-50 group-hover:bg-sirat-cream transition-colors'>{icon}</div>
-      <span className='text-[10px] md:text-xs font-bold text-sirat-green uppercase tracking-widest text-center'>{title}</span>
+      <div className='p-3 rounded-lg bg-gray-50 group-hover:bg-sirat-cream transition-colors'>
+        {icon}
+      </div>
+      <h3 className='font-bold text-sm text-sirat-dark'>{title}</h3>
     </div>
   );
 }
