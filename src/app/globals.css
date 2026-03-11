@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sirat-dark: #1a302a;
+  --color-sirat-gold: #d4af37;
+  --color-sirat-cream: #fdfcf8;
+}
+
+:root {
+  --background: #fdfcf8;
+  --foreground: #1a302a;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, .font-serif {
+  font-family: 'Times New Roman', serif;
+}
+
+/* Navbar background force fix */
+nav {
+  background-color: #1a302a !important;
+}
