@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// 1. GET: Database se history mangwana
+// 1. GET: History fetch karne ke liye
 export async function GET() {
   try {
     const session = await getServerSession();
@@ -41,14 +41,15 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
-      // NOTE: Using Backticks (`) for multi-line string support
+      model: "gemini-1.5-flash", // Update to stable model name
       systemInstruction: `You are Sirat AI. Every answer MUST start with a relevant Quranic Verse or Sahih Hadith reference if available. 
       If a topic is controversial, provide the majority view (Jumhoor) and maintain an extremely respectful tone. 
       Always include 'Wallahu A'lam' at the end of fatwa-related queries.`
     });
 
+    // Defining history with correct types for TS
     let history: { role: string; parts: { text: string }[] }[] = [];
+    
     if (sessionId) {
       const existingChat = await prisma.chat.findUnique({ where: { id: sessionId } });
       if (existingChat) {
@@ -98,7 +99,7 @@ export async function POST(req: Request) {
   }
 }
 
-// 3. DELETE: Chat History mitaane ke liye
+// 3. DELETE: History delete karne ke liye
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession();

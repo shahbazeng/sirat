@@ -154,7 +154,98 @@ export default function SiratLandingPage() {
                <button className="flex-1 bg-gray-50 text-[#1a2e2a] py-6 rounded-3xl font-black text-lg hover:bg-gray-100 transition-all border border-gray-100">Share Mission</button>
             </div>
         </div>
-      </section>
+      </section> 
+
+      {/* 3.5 THE PULSE OF UMMAH - Real-time Questions Visual */}
+<section className="py-32 bg-[#fdfcf8] relative overflow-hidden">
+  <div className="max-w-7xl mx-auto px-6">
+    <div className="text-center max-w-3xl mx-auto mb-20">
+      <motion.p 
+        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+        className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] mb-4"
+      >
+        Global Impact
+      </motion.p>
+      <h2 className="text-4xl md:text-6xl font-serif font-black text-[#1a2e2a] leading-tight tracking-tighter">
+        Seeking Guidance <br /> Across the <span className="italic text-[#D4AF37]">Ummah.</span>
+      </h2>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {[
+        { q: "Family Laws & Rights", count: "12k+", icon: "🌙" },
+        { q: "Financial Integrity (Zakat)", count: "8k+", icon: "⚖️" },
+        { q: "Daily Sunnah & Ethics", count: "25k+", icon: "✨" }
+      ].map((item, i) => (
+        <motion.div 
+          key={i}
+          whileHover={{ y: -15, backgroundColor: "#1a2e2a", color: "#fdfcf8" }}
+          className="p-12 rounded-[3.5rem] border border-gray-100 bg-white shadow-xl transition-all duration-500 group"
+        >
+          <div className="text-4xl mb-6">{item.icon}</div>
+          <h3 className="text-2xl font-bold mb-2 group-hover:text-[#D4AF37] transition-colors">{item.q}</h3>
+          <p className="text-sm font-bold opacity-40 uppercase tracking-widest">{item.count} Questions Solved</p>
+          <div className="mt-8 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+             <ArrowUpRight className="text-[#D4AF37]" size={32} />
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</section>
+{/* 3.6 MODERN DAWAH EXPERIENCE */}
+<section className="py-32 bg-[#1a2e2a] relative overflow-hidden">
+  {/* Background Glows */}
+  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/5 rounded-full blur-[120px]" />
+  <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[120px]" />
+
+  <div className="max-w-7xl mx-auto px-6 relative z-10">
+    <div className="flex flex-col lg:flex-row items-center gap-20">
+      <div className="lg:w-1/2">
+        <h2 className="text-5xl md:text-7xl font-serif font-bold text-white mb-8 leading-tight">
+          Old Wisdom. <br />
+          <span className="text-[#D4AF37]">New Vessels.</span>
+        </h2>
+        <div className="space-y-8">
+          {[
+            { t: "Neural Accuracy", d: "Hamara AI engine Sahih Bukhari aur Muslim ke filters se guzarta hai." },
+            { t: "Bilingual Soul", d: "Roman Urdu aur English ka mix, jo aaj ki nasal ki zaban hai." },
+            { t: "Privacy First", d: "Aapka har sawal aur aapka data amanat hai, jo sirf aapke liye hai." }
+          ].map((feat, i) => (
+            <div key={i} className="flex gap-6 group">
+              <div className="h-12 w-1 shadow-2xl bg-[#D4AF37] group-hover:h-16 transition-all duration-500" />
+              <div>
+                <h4 className="text-white font-black uppercase tracking-widest text-sm mb-2">{feat.t}</h4>
+                <p className="text-white/40 text-sm leading-relaxed">{feat.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="lg:w-1/2 relative">
+        {/* Floating AI Brain Visual */}
+        <div className="relative z-10 p-1 bg-gradient-to-br from-[#D4AF37] to-transparent rounded-[4rem]">
+          <div className="bg-[#1a2e2a] p-12 rounded-[3.8rem] text-center">
+            <Sparkles size={80} className="text-[#D4AF37] mx-auto mb-8 animate-pulse" />
+            <div className="space-y-4 opacity-30 text-xs font-mono text-[#D4AF37]">
+              <p>SCANNING SAHIH BUKHARI...</p>
+              <p>VERIFYING CHAIN OF NARRATION...</p>
+              <p>GENERATING AUTHENTIC RESPONSE...</p>
+            </div>
+            <div className="mt-8 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+               <motion.div 
+                 animate={{ x: ["-100%", "100%"] }}
+                 transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                 className="h-full w-1/3 bg-[#D4AF37]" 
+               />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     </div>
   );
 }
