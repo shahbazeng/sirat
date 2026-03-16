@@ -126,27 +126,71 @@ export default function SiratLandingPage() {
         </div>
       </nav>
 
-      {/* MOBILE OVERLAY MENU */}
-      {isMobileMenuOpen && (
-        <motion.div 
-          initial={{ x: '-100%' }}
-          animate={{ x: 0 }}
-          className="fixed inset-0 bg-[#1a2e2a] z-[100] p-8 flex flex-col gap-10 lg:hidden"
-        >
-          <div className="flex justify-between items-center">
-            <span className="text-2xl font-black italic">SIRAT<span className="text-[#D4AF37]">.AI</span></span>
-            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-white/5 rounded-full">
-              <X size={30} className="text-[#D4AF37]" />
-            </button>
-          </div>
-          
-          <div className="flex flex-col gap-8 text-2xl font-serif italic">
-            <a href="/quran" className="flex justify-between items-center border-b border-white/5 pb-4">Al-Quran <ArrowUpRight /></a>
-            <a href="/hadith" className="flex justify-between items-center border-b border-white/5 pb-4">Hadith <ArrowUpRight /></a>
-            <a href="/donate" className="text-[#D4AF37]">Support Mission</a>
-          </div>
-        </motion.div>
-      )}
+      {/* MOBILE OVERLAY MENU - Premium Colors Update */}
+{isMobileMenuOpen && (
+  <motion.div 
+    initial={{ x: '-100%', opacity: 0 }}
+    animate={{ x: 0, opacity: 1 }}
+    exit={{ x: '-100%', opacity: 0 }}
+    className="fixed inset-0 bg-[#1a2e2a] z-[100] p-8 flex flex-col lg:hidden"
+  >
+    {/* Header inside Menu */}
+    <div className="flex justify-between items-center mb-16">
+      <div className="flex items-center gap-2">
+        <div className="bg-[#D4AF37] p-1.5 rounded-lg">
+          <Sparkles size={18} className="text-[#1a2e2a]" />
+        </div>
+        <span className="text-2xl font-black italic tracking-tighter text-white">
+          SIRAT<span className="text-[#D4AF37]">.AI</span>
+        </span>
+      </div>
+      <button 
+        onClick={() => setIsMobileMenuOpen(false)} 
+        className="p-3 bg-white/5 border border-white/10 rounded-full active:scale-90 transition-all"
+      >
+        <X size={28} className="text-[#D4AF37]" />
+      </button>
+    </div>
+    
+    {/* Navigation Links */}
+    <div className="flex flex-col gap-6">
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2">Sirat</p>
+      
+      <a href="/quran" className="flex justify-between items-center group">
+        <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Al-Quran</span>
+        <ArrowUpRight className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
+      </a>
+      
+      <div className="h-[1px] w-full bg-white/5" />
+
+      <a href="/hadith" className="flex justify-between items-center group">
+        <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Hadith</span>
+        <ArrowUpRight className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
+      </a>
+
+      <div className="h-[1px] w-full bg-white/5" />
+
+      <a href="/chat" className="flex justify-between items-center group">
+        <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Dashboard</span>
+        <User className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
+      </a>
+    </div>
+
+    {/* Bottom Call to Action */}
+    <div className="mt-auto">
+      <button 
+        onClick={() => router.push('/donate')}
+        className="w-full bg-[#D4AF37] text-[#1a2e2a] py-6 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all"
+      >
+        <Heart size={20} className="fill-[#1a2e2a]" />
+        Support Mission
+      </button>
+      <p className="text-center text-white/30 text-[10px] font-bold uppercase tracking-widest mt-6">
+        © 2026 Sirat AI · Authentic Wisdom
+      </p>
+    </div>
+  </motion.div>
+)}
 
       {/* ... baqi aapka Hero Section, Banner, etc. as it is rahein ga */}
 
@@ -258,19 +302,50 @@ export default function SiratLandingPage() {
         </div>
       </section>
 
-      {/* 6. GLOBAL IMPACT (Pulse of Ummah) */}
-      <section className="py-32 bg-[#fdfcf8]">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-6xl font-serif font-black text-[#1a2e2a] mb-20 tracking-tighter">
-            Seeking Guidance Across the <span className="italic text-[#D4AF37]">Ummah.</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <ImpactCard icon="🌙" title="Family Laws" count="12k+" />
-            <ImpactCard icon="⚖️" title="Zakat Integrity" count="8k+" />
-            <ImpactCard icon="✨" title="Sunnah Ethics" count="25k+" />
-          </div>
-        </div>
-      </section>
+      {/* 6. GLOBAL IMPACT (Pulse of Ummah) - Premium Updated Version */}
+<section className="py-32 bg-[#fdfcf8] relative overflow-hidden">
+  {/* Background Subtle Elements */}
+  <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')] opacity-[0.03] pointer-events-none" />
+  
+  <div className="max-w-7xl mx-auto px-6 relative z-10">
+    <div className="text-center max-w-3xl mx-auto mb-20">
+      <motion.p 
+        initial={{ opacity: 0 }} 
+        whileInView={{ opacity: 1 }}
+        className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] mb-4"
+      >
+        The Pulse of Ummah
+      </motion.p>
+      <h2 className="text-4xl md:text-7xl font-serif font-black text-[#1a2e2a] leading-tight tracking-tighter">
+        Seeking Guidance <br /> Across the <span className="italic text-[#D4AF37] drop-shadow-sm">Ummah.</span>
+      </h2>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <ImpactCard 
+        icon="🌙" 
+        title="Family Laws" 
+        count="12,400+" 
+        description="Nikah, Divorce & Inheritance guidance based on Sharia."
+        glowColor="rgba(212,175,55,0.2)"
+      />
+      <ImpactCard 
+        icon="⚖️" 
+        title="Zakat & Finance" 
+        count="8,200+" 
+        description="Halal Investment and Zakat calculations verified."
+        glowColor="rgba(26,46,42,0.1)"
+      />
+      <ImpactCard 
+        icon="✨" 
+        title="Sunnah Ethics" 
+        count="25,900+" 
+        description="Daily Adab and Akhlaq from authentic Sahih Hadith."
+        glowColor="rgba(212,175,55,0.2)"
+      />
+    </div>
+  </div>
+</section>
     </div>
   );
 }
@@ -289,15 +364,45 @@ function ResourceCard({ icon, title }: { icon: React.ReactNode, title: string })
   );
 }
 
-function ImpactCard({ icon, title, count }: { icon: string, title: string, count: string }) {
+// --- UPDATED IMPACT CARD COMPONENT ---
+function ImpactCard({ icon, title, count, description, glowColor }: any) {
   return (
     <motion.div 
-      whileHover={{ y: -15, backgroundColor: "#1a2e2a", color: "#fdfcf8" }}
-      className="p-12 rounded-[3.5rem] border border-gray-100 bg-white shadow-xl transition-all duration-500 group"
+      whileHover={{ y: -20 }}
+      transition={{ type: "spring", stiffness: 300 }}
+      className="relative p-10 rounded-[3.5rem] bg-white border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] group cursor-default overflow-hidden"
     >
-      <div className="text-4xl mb-6">{icon}</div>
-      <h3 className="text-2xl font-bold mb-2 group-hover:text-[#D4AF37] transition-colors">{title}</h3>
-      <p className="text-sm font-bold opacity-40 uppercase tracking-widest">{count} Questions Solved</p>
+      {/* Hover Glow Effect */}
+      <div 
+        className="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl -z-10"
+        style={{ backgroundColor: glowColor }}
+      />
+
+      <div className="relative z-10">
+        <div className="text-5xl mb-8 transform group-hover:scale-125 transition-transform duration-500 block w-fit">
+          {icon}
+        </div>
+        
+        <h3 className="text-2xl font-black text-[#1a2e2a] mb-3 group-hover:text-[#D4AF37] transition-colors">
+          {title}
+        </h3>
+        
+        <p className="text-gray-400 text-sm leading-relaxed mb-8 opacity-0 h-0 group-hover:opacity-100 group-hover:h-auto transition-all duration-500">
+          {description}
+        </p>
+
+        <div className="flex items-center justify-between mt-auto border-t border-gray-50 pt-6">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Total Solved</p>
+            <p className="text-2xl font-serif italic font-bold text-[#1a2e2a] group-hover:text-[#D4AF37]">
+              {count}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-full group-hover:bg-[#1a2e2a] group-hover:text-white transition-all">
+            <ArrowUpRight size={20} />
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }

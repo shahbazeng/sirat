@@ -13,7 +13,7 @@
 
 body {
   background-color: var(--background);
-  color: #ffffff;
+  color: var(--foreground);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
