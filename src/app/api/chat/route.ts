@@ -3,53 +3,66 @@ import { getServerSession } from "next-auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+// IS LINE KO RAKHEIN
+import { authOptions } from "@/lib/auth"; 
 
-// 1. GET: History fetch karne ke liye
+// IS LINE KO DELETE KAR DEIN (Ye error ki wajah hai)
+// import { authOptions } from "@/app/api/auth/[...nextauth]/route"; 
+
+// 1. PRISMA CLIENT SETUP
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+
+// 2. GET: Fetch History
 export async function GET() {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const session = await getServerSession(authOptions); // authOptions added
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const chats = await prisma.chat.findMany({
-      where: { userId: user.id },
+      where: { user: { email: session.user.email } },
       orderBy: { createdAt: 'desc' }
     });
     return NextResponse.json(chats);
-  } catch (error) {
+  } catch (error: any) {
+    console.error("GET Error:", error.message);
     return NextResponse.json({ error: "Fetch error" }, { status: 500 });
   }
 }
 
-// 2. POST: Gemini Response & Saving
+// 3. POST: AI Response & Saving
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions); // authOptions added
     if (!session?.user?.email) {
       return NextResponse.json({ answer: "Meherbani karke pehle login karein." }, { status: 401 });
     }
 
     const { prompt, sessionId } = await req.json();
-    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-    if (!user) return NextResponse.json({ answer: "User nahi mila." }, { status: 404 });
+    
+    // User fetch
+    const user = await prisma.user.findUnique({ 
+      where: { email: session.user.email } 
+    });
+    
+    if (!user) return NextResponse.json({ answer: "User profile nahi mili." }, { status: 404 });
 
     const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-    if (!apiKey) return NextResponse.json({ answer: "API Key missing!" }, { status: 500 });
+    if (!apiKey) return NextResponse.json({ answer: "API Key missing in .env!" }, { status: 500 });
 
+    // Initialize Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash", // Update to stable model name
-      systemInstruction: `You are Sirat AI. Every answer MUST start with a relevant Quranic Verse or Sahih Hadith reference if available. 
-      If a topic is controversial, provide the majority view (Jumhoor) and maintain an extremely respectful tone. 
-      Always include 'Wallahu A'lam' at the end of fatwa-related queries.`
+      model: "gemini-2.5-flash", 
+      systemInstruction: `You are Sirat AI. Every answer MUST start with a relevant Quranic Verse or Sahih Hadith reference if availale. 
+      Maintain an extremely respectful tone. Always include 'Wallahu A'lam' at the end of fatwa-related queries.`
     });
 
-    // Defining history with correct types for TS
-    let history: { role: string; parts: { text: string }[] }[] = [];
-    
+    let history: any[] = [];
     if (sessionId) {
       const existingChat = await prisma.chat.findUnique({ where: { id: sessionId } });
       if (existingChat) {
@@ -60,10 +73,9 @@ export async function POST(req: Request) {
       }
     }
 
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const chatSession = model.startChat({ history });
+    const result = await chatSession.sendMessage(prompt);
+    const text = result.response.text();
 
     const newUserMsg = { role: 'user', content: prompt };
     const newAiMsg = { role: 'ai', content: text };
@@ -94,15 +106,17 @@ export async function POST(req: Request) {
     });
 
   } catch (error: any) {
-    console.error("POST Error:", error);
-    return NextResponse.json({ answer: "Error: " + (error.message || "Kuch masla hua.") }, { status: 500 });
+    console.error("POST Error Details:", error.message);
+    return NextResponse.json({ 
+      answer: "Error: " + (error.message || "Something went wrong.") 
+    }, { status: 500 });
   }
 }
 
-// 3. DELETE: History delete karne ke liye
+// 4. DELETE: History Cleanup
 export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

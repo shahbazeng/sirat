@@ -94,6 +94,25 @@ export default function SiratLandingPage() {
         </motion.div>
       </section>
 
+{/* 7-DAY CHALLENGE BANNER */}
+<motion.div 
+  initial={{ y: -50, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  className="bg-sirat-gold text-sirat-dark py-4 px-6 text-center font-black uppercase tracking-[0.2em] text-[12px] flex flex-col md:flex-row items-center justify-center gap-4 shadow-xl"
+>
+  <span className="flex items-center gap-2">
+    <Sparkles size={16} /> EMERGENCY FUNDRAISING: 7 DAYS REMAINING
+  </span>
+  <div className="flex gap-4 bg-sirat-dark text-sirat-gold px-4 py-1 rounded-full">
+    <span>06d : 23h : 45m</span>
+  </div>
+  <button onClick={() => router.push('/donate')} className="underline hover:scale-105 transition-transform">
+    BECOME A FOUNDING SUPPORTER →
+  </button>
+</motion.div>
+
+
+
       {/* 3. DAWAH SECTION */}
       <section className="bg-[#1a2e2a] text-white py-32 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
