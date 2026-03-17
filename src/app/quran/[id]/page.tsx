@@ -17,11 +17,14 @@ export default function SurahReadingPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   
+  // Modal & Tafsir States
   const [activeModal, setActiveModal] = useState<{type: string, ayahIndex: number, ayahKey: string} | null>(null);
   const [tafsirContent, setTafsirContent] = useState<string>("");
   const [loadingTafsir, setLoadingTafsir] = useState(false);
+  
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // 1. Fetch Surah Detail
   useEffect(() => {
     async function fetchSurahDetail() {
       try {
@@ -33,19 +36,38 @@ export default function SurahReadingPage() {
     fetchSurahDetail();
   }, [id]);
 
+  // 2. Fetch Tafsir (FIXED TYPE ERROR HERE)
   useEffect(() => {
-    if (activeModal && activeModal.type === 'Tafsir') {
+    // Adding explicit check for activeModal to satisfy TypeScript
+    if (activeModal && activeModal.type === 'Tafsir' && activeModal.ayahKey) {
       async function fetchTafsir() {
         setLoadingTafsir(true);
         try {
-          const res = await fetch(`https://api.quran.com/api/v4/tafsirs/169/by_ayah/${activeModal.ayahKey}`);
+          const res = await fetch(`https://api.quran.com/api/v4/tafsirs/169/by_ayah/${activeModal?.ayahKey}`);
           const data = await res.json();
           setTafsirContent(data.tafsir.text);
-        } catch (err) { setTafsirContent("Failed to load tafsir."); } finally { setLoadingTafsir(false); }
+        } catch (err) { 
+          setTafsirContent("Failed to load tafsir."); 
+        } finally { 
+          setLoadingTafsir(false); 
+        }
       }
       fetchTafsir();
     }
   }, [activeModal]);
+
+  // 3. Save History
+  useEffect(() => {
+    if (surahData) {
+      const lastRead = {
+        id: id,
+        name: surahData[0].englishName,
+        ayah: 1,
+        timestamp: new Date().getTime()
+      };
+      localStorage.setItem("sirat_last_read", JSON.stringify(lastRead));
+    }
+  }, [id, surahData]);
 
   if (loading) return (
     <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-[#0f1715]' : 'bg-[#fdfcf8]'}`}>
@@ -77,7 +99,7 @@ export default function SurahReadingPage() {
           <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-3 rounded-2xl transition-all shadow-lg ${isDarkMode ? 'bg-white/5 text-[#D4AF37]' : 'bg-gray-50 text-gray-400'}`}>
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          <button onClick={() => isPlaying ? audioRef.current?.pause() : audioRef.current?.play()} className="bg-[#1a2e2a] text-[#D4AF37] px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center gap-2">
+          <button onClick={() => isPlaying ? audioRef.current?.pause() : audioRef.current?.play()} className="bg-[#1a2e2a] text-[#D4AF37] px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center gap-2 transition-all active:scale-95">
             {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} {isPlaying ? "Pause" : "Play Surah"}
           </button>
         </div>
@@ -85,32 +107,32 @@ export default function SurahReadingPage() {
 
       {/* --- FULL WIDTH CONTAINER --- */}
       <div className="w-full px-4 md:px-12 pt-10 pb-20">
-        <div className="max-w-[1400px] mx-auto space-y-8">
+        <div className="max-w-[1400px] mx-auto space-y-10">
           {arabicVerses.map((ayah: any, index: number) => {
             const ayahKey = `${id}:${index + 1}`;
             return (
               <motion.div 
                 key={ayah.number} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                className={`w-full rounded-[3rem] border transition-all p-6 md:p-12 ${isDarkMode ? 'bg-[#15201d] border-white/5 shadow-2xl' : 'bg-white border-gray-50 shadow-sm'}`}
+                className={`w-full rounded-[3.5rem] border transition-all p-6 md:p-12 ${isDarkMode ? 'bg-[#15201d] border-white/5 shadow-2xl' : 'bg-white border-gray-50 shadow-sm'}`}
               >
-                {/* 1. Ayat Header (Number & Audio) */}
-                <div className="flex justify-between items-center mb-8">
+                {/* 1. Ayat Header */}
+                <div className="flex justify-between items-center mb-10">
                   <span className="px-6 py-2 rounded-2xl bg-[#1a2e2a] text-[11px] font-black text-[#D4AF37] tracking-[0.2em] border border-[#D4AF37]/20">{ayahKey}</span>
                   <div className="flex gap-3">
-                    <button className={`p-3 rounded-xl transition-all ${isDarkMode ? 'bg-white/5 text-gray-400 hover:text-[#D4AF37]' : 'bg-gray-50 text-gray-300 hover:text-[#D4AF37]'}`}><Bookmark size={20} /></button>
-                    <button onClick={() => { audioRef.current!.src = audioVerses[index].audio; audioRef.current!.play(); setIsPlaying(true); }} className={`p-3 rounded-xl transition-all ${isDarkMode ? 'bg-white/5 text-[#D4AF37]' : 'bg-gray-50 text-[#1a2e2a]'}`}><Volume2 size={20} /></button>
+                    <button className={`p-3 rounded-xl transition-all ${isDarkMode ? 'bg-white/5 text-gray-500 hover:text-[#D4AF37]' : 'bg-gray-50 text-gray-300 hover:text-[#D4AF37]'}`}><Bookmark size={20} /></button>
+                    <button onClick={() => { if(audioRef.current) { audioRef.current.src = audioVerses[index].audio; audioRef.current.play(); setIsPlaying(true); } }} className={`p-3 rounded-xl transition-all ${isDarkMode ? 'bg-white/5 text-[#D4AF37]' : 'bg-gray-50 text-[#1a2e2a]'}`}><Volume2 size={20} /></button>
                   </div>
                 </div>
 
-                {/* 2. Arabic Text (Full Width Center) */}
-                <div className="mb-12">
+                {/* 2. Arabic Text (Centered View) */}
+                <div className="mb-14">
                   <p className={`text-4xl md:text-7xl font-serif text-right leading-[1.8] ${isDarkMode ? 'text-white' : 'text-[#1a2e2a]'}`} dir="rtl">
                     {ayah.text}
                   </p>
                 </div>
 
                 {/* 3. Translations Row */}
-                <div className="grid lg:grid-cols-2 gap-8 mb-12">
+                <div className="grid lg:grid-cols-2 gap-8 mb-14">
                   <div className={`p-8 rounded-[2.5rem] border-r-8 border-[#D4AF37] ${isDarkMode ? 'bg-[#0f1715]/50' : 'bg-[#fcfaf2]'}`}>
                     <p className={`text-2xl md:text-3xl font-serif text-right leading-relaxed ${isDarkMode ? 'text-white/90' : 'text-[#1a2e2a]'}`} dir="rtl">
                       {urduVerses[index].text}
@@ -126,12 +148,11 @@ export default function SurahReadingPage() {
                 {/* 4. Knowledge Hub (Bottom Full Width) */}
                 <div className={`pt-8 border-t ${isDarkMode ? 'border-white/5' : 'border-gray-100'}`}>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37] w-full md:w-auto mb-4 md:mb-0 mr-6 text-center">Insights</p>
                     <div className="flex flex-wrap gap-3 justify-center">
                       <InsightButton isDark={isDarkMode} onClick={() => setActiveModal({type: 'Tafsir', ayahIndex: index, ayahKey})} icon={<BookOpen size={16}/>} label="Tafsir" />
                       <InsightButton isDark={isDarkMode} onClick={() => setActiveModal({type: 'Lessons', ayahIndex: index, ayahKey})} icon={<Lightbulb size={16}/>} label="Lessons" />
                       <InsightButton isDark={isDarkMode} onClick={() => setActiveModal({type: 'Hadith', ayahIndex: index, ayahKey})} icon={<Scroll size={16}/>} label="Hadith" />
-                      <InsightButton isDark={isDarkMode} onClick={() => setActiveModal({type: 'Answers', ayahIndex: index, ayahKey})} icon={<MessageSquare size={16}/>} label="AI Help" />
+                      <InsightButton isDark={isDarkMode} onClick={() => setActiveModal({type: 'AI Help', ayahIndex: index, ayahKey})} icon={<MessageSquare size={16}/>} label="AI Help" />
                     </div>
                   </div>
                 </div>
@@ -141,7 +162,7 @@ export default function SurahReadingPage() {
         </div>
       </div>
 
-      {/* --- MODAL (Full Screen Style) --- */}
+      {/* --- MODAL SYSTEM --- */}
       <AnimatePresence>
         {activeModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
@@ -155,7 +176,7 @@ export default function SurahReadingPage() {
                 <button onClick={() => setActiveModal(null)} className={`p-3 rounded-full transition-all ${isDarkMode ? 'bg-white/5 hover:bg-red-500/20' : 'bg-gray-100 hover:bg-red-50'}`}><X size={20}/></button>
               </div>
               <div className="p-10 overflow-y-auto custom-scrollbar">
-                {loadingTafsir ? <div className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-[#D4AF37]" size={40} /></div> : <div className={`prose prose-stone max-w-none text-2xl leading-[2] ${isDarkMode ? 'prose-invert text-gray-300' : 'text-gray-600'}`} dangerouslySetInnerHTML={{ __html: tafsirContent }} />}
+                {loadingTafsir ? <div className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-[#D4AF37]" size={40} /></div> : <div className={`prose prose-stone max-w-none text-2xl leading-[2] ${isDarkMode ? 'prose-invert text-gray-300' : 'text-gray-600'}`} dangerouslySetInnerHTML={{ __html: tafsirContent || "Insight content will be available soon." }} />}
               </div>
             </motion.div>
           </div>
@@ -169,7 +190,7 @@ export default function SurahReadingPage() {
 
 function InsightButton({ icon, label, onClick, isDark }: { icon: React.ReactNode, label: string, onClick: () => void, isDark: boolean }) {
   return (
-    <button onClick={onClick} className={`flex items-center gap-3 py-4 px-6 rounded-2xl transition-all group border border-transparent shadow-sm ${isDark ? 'bg-white/5 text-white hover:bg-[#1a2e2a]' : 'bg-gray-50 text-[#1a2e2a] hover:bg-[#1a2e2a] hover:text-white'}`}>
+    <button onClick={onClick} className={`flex items-center gap-3 py-4 px-6 rounded-2xl transition-all group border border-transparent shadow-sm active:scale-95 ${isDark ? 'bg-white/5 text-white hover:bg-[#1a2e2a]' : 'bg-gray-50 text-[#1a2e2a] hover:bg-[#1a2e2a] hover:text-white'}`}>
       <span className="text-[#D4AF37] group-hover:text-white transition-colors">{icon}</span>
       <span className="text-[11px] font-black uppercase tracking-widest">{label}</span>
     </button>
