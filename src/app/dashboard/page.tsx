@@ -1,17 +1,27 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Don't forget to import these
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { 
   Book, Mic, MessageSquare, Star, 
-  ArrowRight, Play, Heart, Sparkles, Compass
+  ArrowRight, Play, Heart, Sparkles, Compass, Clock
 } from 'lucide-react';
 
 export default function UserDashboard() {
   const { data: session } = useSession();
   const router = useRouter();
+
+  // --- HOOKS AB ANDAR HAIN ---
+  const [lastRead, setLastRead] = useState<any>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("sirat_last_read");
+    if (saved) {
+      setLastRead(JSON.parse(saved));
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#fdfcf8] p-6 md:p-12 font-sans">
@@ -41,7 +51,7 @@ export default function UserDashboard() {
           </div>
         </header>
 
-        {/* --- CORE FEATURES: QURAN & AI --- */}
+        {/* --- CORE FEATURES --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* AI Guidance Card */}
@@ -59,24 +69,35 @@ export default function UserDashboard() {
             </button>
           </motion.div>
 
-          {/* Quran Reading Card */}
-          <motion.div whileHover={{ y: -10 }} className="lg:col-span-1 bg-[#1a2e2a] p-10 rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4AF37]/10 rounded-full blur-3xl" />
+          {/* Quran Reading Card (CONTINUE READING) */}
+          <motion.div 
+            whileHover={{ y: -10 }}
+            className="lg:col-span-1 bg-[#1a2e2a] p-10 rounded-[3rem] shadow-2xl relative overflow-hidden flex flex-col justify-between cursor-pointer"
+            onClick={() => router.push(`/quran/${lastRead?.id || '1'}`)}
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4AF37]/10 rounded-full blur-[80px]" />
             <div className="relative z-10">
               <div className="w-14 h-14 bg-[#D4AF37] rounded-2xl flex items-center justify-center mb-8">
-                <Book className="text-[#1a2e2a]" size={28} />
+                <Clock className="text-[#1a2e2a]" size={28} />
               </div>
-              <h3 className="text-3xl font-serif font-black italic text-white mb-4">Digital Mushaf</h3>
-              <p className="text-white/50 text-sm leading-relaxed mb-8">Read the Noble Quran with word-by-word analysis and multiple translations.</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] mb-1 italic">Resume Reading</p>
+              <h3 className="text-3xl font-serif font-black italic text-white mb-4">
+                {lastRead ? `Surah ${lastRead.name}` : "Digital Mushaf"}
+              </h3>
+              <p className="text-white/50 text-sm leading-relaxed mb-8">
+                {lastRead ? "Pick up where you left off in your last session." : "Read the Noble Quran with word-by-word analysis."}
+              </p>
             </div>
             <button className="flex items-center justify-between w-full bg-white/5 p-5 rounded-2xl group hover:bg-white transition-all">
-              <span className="font-black text-[10px] uppercase tracking-widest text-white group-hover:text-[#1a2e2a]">Open Quran</span>
-              <Play size={18} className="text-[#D4AF37]" />
+              <span className="font-black text-[10px] uppercase tracking-widest text-white group-hover:text-[#1a2e2a]">
+                {lastRead ? "Resume Now" : "Open Quran"}
+              </span>
+              <Play size={18} className="text-[#D4AF37]" fill="currentColor" />
             </button>
           </motion.div>
 
           {/* Recitation Card */}
-          <motion.div whileHover={{ y: -10 }} className="lg:col-span-1 bg-white p-10 rounded-[3rem] shadow-xl border border-gray-50 flex flex-col justify-between">
+          <motion.div whileHover={{ y: -10 }} className="lg:col-span-1 bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100 flex flex-col justify-between">
             <div>
               <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-8">
                 <Mic className="text-[#1a2e2a]" size={28} />
@@ -92,31 +113,20 @@ export default function UserDashboard() {
 
         </div>
 
-        {/* --- USER PROGRESS & DAILY GOAL --- */}
+        {/* --- PROGRESS SECTION --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Daily Goal Section */}
           <div className="bg-[#fcfaf2] border border-[#D4AF37]/20 p-10 rounded-[3.5rem] flex flex-col justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37] mb-6">Today's Wisdom</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37] mb-6 font-mono">Today's Wisdom</p>
               <p className="text-2xl font-serif italic text-[#1a2e2a] leading-relaxed mb-6" dir="rtl">
                 "And say: My Lord, increase me in knowledge."
               </p>
-              <div className="flex items-center gap-2 text-gray-400 text-xs font-bold italic">
-                <span>[ Surah Taha 20:114 ]</span>
-              </div>
-            </div>
-            <div className="mt-10 space-y-3">
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                <span>Daily Reading Goal</span>
-                <span>0 / 5 Pages</span>
-              </div>
-              <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-full bg-[#D4AF37] w-[0%]" />
+              <div className="text-gray-400 text-xs font-bold italic">
+                <span>[ SURAH TAHA 20:114 ]</span>
               </div>
             </div>
           </div>
 
-          {/* Quick Stats Sidebar */}
           <div className="grid grid-cols-2 gap-4">
              <div className="bg-white p-8 rounded-3xl border border-gray-100 flex flex-col justify-center items-center text-center">
                 <p className="text-3xl font-serif font-black italic text-[#1a2e2a]">0</p>
@@ -126,11 +136,11 @@ export default function UserDashboard() {
                 <p className="text-3xl font-serif font-black italic text-[#1a2e2a]">0h</p>
                 <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-2">Listening Time</p>
              </div>
-             <div className="bg-white p-8 rounded-3xl border border-gray-100 flex flex-col justify-center items-center text-center">
+             <div className="bg-white p-8 rounded-3xl border border-gray-100 flex flex-col justify-center items-center text-center hover:bg-[#D4AF37]/5 transition-colors">
                 <Star className="text-[#D4AF37] mb-2" size={24} />
                 <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">Total Rewards</p>
              </div>
-             <div className="bg-white p-8 rounded-3xl border border-gray-100 flex flex-col justify-center items-center text-center">
+             <div className="bg-white p-8 rounded-3xl border border-gray-100 flex flex-col justify-center items-center text-center hover:bg-red-50 transition-colors">
                 <Heart className="text-red-400 mb-2" size={24} />
                 <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">Saved Ayats</p>
              </div>
