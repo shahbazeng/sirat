@@ -7,7 +7,8 @@ import { Book, Search, Play, Clock, LayoutGrid, List, Bookmark, Sparkles, Loader
 
 export default function QuranPage() {
   const [activeTab, setActiveTab] = useState('surah');
-  const [surahs, setSurahs] = useState([]);
+  // FIX 1: Added <any[]> to state to allow object properties
+  const [surahs, setSurahs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function QuranPage() {
       try {
         const res = await fetch('https://api.alquran.cloud/v1/surah');
         const data = await res.json();
-        setSurahs(data.data);
+        setSurahs(data.data || []);
       } catch (err) {
         console.error("Error fetching surahs:", err);
       } finally {
@@ -34,10 +35,10 @@ export default function QuranPage() {
     { id: 'bookmarks', label: 'Saved', icon: <Bookmark size={18} /> },
   ];
 
-  // Filter surahs based on search
-  const filteredSurahs = surahs.filter(s => 
-    s.englishName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.number.toString().includes(searchTerm)
+  // FIX 2: Added (s: any) and optional chaining ?. for safety
+  const filteredSurahs = surahs.filter((s: any) => 
+    s?.englishName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s?.number?.toString().includes(searchTerm)
   );
 
   return (
@@ -55,7 +56,7 @@ export default function QuranPage() {
           </div>
         </div>
 
-        {/* --- CONTINUE READING (Static Example) --- */}
+        {/* --- CONTINUE READING --- */}
         <motion.div 
           whileHover={{ scale: 1.01 }}
           className="bg-[#1a2e2a] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl cursor-pointer"
@@ -119,7 +120,7 @@ export default function QuranPage() {
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
-              {activeTab === 'surah' && filteredSurahs.map((surah) => (
+              {activeTab === 'surah' && filteredSurahs.map((surah: any) => (
                 <div 
                   key={surah.number} 
                   onClick={() => router.push(`/quran/${surah.number}`)}
