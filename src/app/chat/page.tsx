@@ -4,8 +4,9 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession, signOut } from "next-auth/react";
 import ReactMarkdown from 'react-markdown';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Send, Home, Loader2, Sparkles, User, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic
+  Send, Home, Loader2, Sparkles, User, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic, BookOpen, Volume2, Square
 } from 'lucide-react';
 
 interface Message {
@@ -21,6 +22,35 @@ interface ChatSession {
 }
 
 function ChatContent() {
+// --- YE SECTION FUNCTION KE ANDAR SABSE UPAR RAKHEIN ---
+  const renderFormattedMessage = (content: string) => {
+  const parts = content.split(/(\[\d+:\d+\])/g);
+  return parts.map((part, i) => {
+    if (part.match(/(\[\d+:\d+\])/)) {
+      const match = part.match(/\[(\d+):(\d+)\]/);
+      if (match) {
+        const surahId = match[1];
+        const ayahId = match[2];
+        return (
+          <button 
+            key={i}
+            onClick={() => router.push(`/quran/${surahId}`)}
+            className="inline-flex items-center gap-1.5 px-3 py-1 bg-sirat-gold/20 text-sirat-gold rounded-lg font-black text-[10px] mx-1 hover:bg-sirat-gold hover:text-sirat-dark transition-all border border-sirat-gold/30 mb-1"
+          >
+            <BookOpen size={10} /> Surah {surahId}:{ayahId}
+          </button>
+        );
+      }
+    }
+    // Fixed Line:
+    return (
+      <span key={i} className="inline prose prose-sm max-w-none">
+        <ReactMarkdown>{part}</ReactMarkdown>
+      </span>
+    );
+  });
+};
+
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -71,8 +101,78 @@ const startListening = () => {
   recognition.start();
 };
  
+const stripMarkdown = (text: string) => {
+    return text
+      .replace(/\[\d+:\d+\]/g, '') // Quran references hatayein
+      .replace(/[#*`_~]/g, '')     // Markdown symbols hatayein
+      .replace(/!\[.*?\]\(.*?\)/g, '') 
+      .replace(/\[.*?\]\(.*?\)/g, '')  
+      .replace(/\n/g, ' ')         // Line breaks ko space banayein
+      .replace(/\s+/g, ' ')        // Double spaces hatayein
+      .trim();
+  };
 
+  // --- 2. ADVANCE SPEAK LOGIC (Sentence by Sentence) ---
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
+  const speak = (text: string) => {
+  if (typeof window !== "undefined" && window.speechSynthesis) {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
 
+    const cleanText = stripMarkdown(text);
+    const chunks = cleanText.split(/[.!?\n]+/).filter(c => c.trim().length > 0);
+    let currentChunk = 0;
+    let heartbeatInterval: any;
+
+    const speakNextChunk = () => {
+      if (currentChunk < chunks.length) {
+        const utterance = new SpeechSynthesisUtterance(chunks[currentChunk].trim());
+        
+        // Voice selection logic
+        const voices = window.speechSynthesis.getVoices();
+        const urduVoice = voices.find(v => v.lang.includes('ur')) || voices.find(v => v.lang.includes('hi'));
+        if (urduVoice) utterance.voice = urduVoice;
+        
+        utterance.lang = 'ur-PK';
+        utterance.rate = 1.1;
+
+        utterance.onstart = () => {
+          setIsSpeaking(true);
+          // Heartbeat to keep Chrome awake
+          heartbeatInterval = setInterval(() => {
+            window.speechSynthesis.pause();
+            window.speechSynthesis.resume();
+          }, 5000);
+        };
+
+        utterance.onend = () => {
+          clearInterval(heartbeatInterval);
+          currentChunk++;
+          if (currentChunk < chunks.length) {
+            speakNextChunk();
+          } else {
+            setIsSpeaking(false);
+          }
+        };
+
+        utterance.onerror = (event) => {
+          console.error("TTS Error:", event);
+          clearInterval(heartbeatInterval);
+          setIsSpeaking(false);
+          window.speechSynthesis.cancel();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+    };
+
+    speakNextChunk();
+  }
+};
 
 
 
@@ -295,15 +395,23 @@ const deleteChat = async (e: React.MouseEvent, id: string) => {
 
         {/* Messages List */}
         <main className="flex-1 overflow-y-auto p-4 md:p-10 space-y-8">
+          {/* --- 3. SMART SUGGESTIONS --- */}
           {!currentSession && !isLoading && (
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto animate-in fade-in duration-700">
-              <div className="w-20 h-20 bg-sirat-gold/10 rounded-full flex items-center justify-center mb-6">
+            <div className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-10 py-10">
+              <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="w-20 h-20 bg-sirat-gold/10 rounded-full flex items-center justify-center mb-4">
                 <Sparkles size={40} className="text-sirat-gold animate-pulse" />
+              </motion.div>
+              <div className="space-y-4">
+                <h2 className="text-3xl font-serif italic font-black text-sirat-dark">Assalam-o-Alaikum, {session?.user?.name}</h2>
+                <p className="text-gray-400 text-sm max-w-sm mx-auto">Islam, Quran aur Hadith ke mutaliq koi bhi sawal poochein.</p>
               </div>
-              <h2 className="text-2xl font-serif italic mb-2">Assalam-o-Alaikum, {session?.user?.name}!</h2>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Islam ke mutaliq koi bhi sawal poochein. Hum Quran aur Sahih Hadith ki roshni mein jawab dene ki koshish karenge.
-              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full px-4">
+                {["Quran mein Sabr ka zikr?", "Zakat nikalne ka tariqa?", "Tahajjud ki fazilat", "Aaj ki achi baat"].map((text, idx) => (
+                  <button key={idx} onClick={() => handleSearch(text)} className="p-4 bg-white border border-gray-100 rounded-2xl text-left text-xs font-bold text-gray-500 hover:border-sirat-gold hover:text-sirat-gold transition-all shadow-sm flex items-center justify-between group">
+                    {text} <Plus size={14} className="opacity-0 group-hover:opacity-100" />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
           {currentSession?.messages?.map((msg, i) => (
@@ -325,21 +433,25 @@ const deleteChat = async (e: React.MouseEvent, id: string) => {
       : 'bg-white border border-gray-100 rounded-[2rem] rounded-tl-none text-sirat-dark'
     }`}>
       <div className="prose prose-stone prose-p:leading-relaxed prose-strong:text-sirat-gold max-w-none">
-        <ReactMarkdown>{msg.content}</ReactMarkdown>
-      </div>
+  {msg.role === 'ai' ? renderFormattedMessage(msg.content) : <ReactMarkdown>{msg.content}</ReactMarkdown>}
+</div>
 
       {/* Action Buttons (Copy) */}
-      {msg.role === 'ai' && (
-        <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
-          <button 
-            onClick={() => copyToClipboard(msg.content)}
-            className="flex items-center gap-2 text-[10px] font-bold text-sirat-gold hover:bg-sirat-gold hover:text-sirat-dark px-3 py-1.5 rounded-full border border-sirat-gold/20 transition-all active:scale-90"
-          >
-            <Copy size={12} /> Copy Response
-          </button>
-          <span className="text-[9px] font-black uppercase tracking-widest opacity-30 italic">Sirat Verified</span>
-        </div>
-      )}
+      {/* --- 4. ACTION BUTTONS (Audio + Copy) --- */}
+              {msg.role === 'ai' && (
+                <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 gap-2 flex-wrap">
+                  <div className="flex gap-2">
+                    <button onClick={() => copyToClipboard(msg.content)} className="flex items-center gap-2 text-[10px] font-bold text-sirat-gold border border-sirat-gold/20 px-3 py-1.5 rounded-full hover:bg-sirat-gold/10 transition-all">
+                      <Copy size={12} /> Copy
+                    </button>
+                    
+                    <button onClick={() => speak(msg.content)} className={`flex items-center gap-2 text-[10px] font-bold border px-3 py-1.5 rounded-full transition-all ${isSpeaking ? 'bg-red-50 text-red-500 border-red-200 animate-pulse' : 'text-sirat-gold border-sirat-gold/20 hover:bg-sirat-gold/10'}`}>
+                       <Volume2 size={12} /> {isSpeaking ? "Stop" : "Listen"}
+                    </button>
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-widest opacity-20 italic">Sirat Verified</span>
+                </div>
+              )}
     </div>
   </div>
 ))}

@@ -11,7 +11,7 @@ import {
 // --- 1. MONTHLY DONATION BANNER COMPONENT ---
 function DonationBanner() {
   const [isVisible, setIsVisible] = useState(true);
-
+const router = useRouter();
   if (!isVisible) return null;
 
   return (
@@ -42,7 +42,7 @@ function DonationBanner() {
           </p>
 
           <div className="pt-4">
-            <button className="group relative inline-flex items-center gap-3 bg-[#1a2e2a] px-12 py-5 rounded-full font-black text-xs uppercase tracking-[0.2em] text-[#D4AF37] hover:bg-black transition-all active:scale-95 shadow-2xl">
+            <button onClick={() => router.push('/support')} className="group relative inline-flex items-center gap-3 bg-[#1a2e2a] px-12 py-5 rounded-full font-black text-xs uppercase tracking-[0.2em] text-[#D4AF37] hover:bg-black transition-all active:scale-95 shadow-2xl">
               <Heart size={18} className="fill-[#D4AF37]" />
               Donate now
             </button>
@@ -117,12 +117,13 @@ export default function SiratLandingPage() {
           </button>
 
           <button 
-            onClick={() => router.push('/donate')}
+            onClick={() => router.push('/support')}
             className="bg-[#D4AF37] text-[#1a2e2a] px-5 md:px-8 py-2 md:py-3 rounded-full font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg"
           >
             <span className="sm:hidden">Support</span>
-            <span className="hidden sm:inline">Support Mission</span>
-          </button>
+  <span className="hidden sm:inline">Support Mission</span>
+          </button> 
+
         </div>
       </nav>
 
@@ -179,7 +180,7 @@ export default function SiratLandingPage() {
     {/* Bottom Call to Action */}
     <div className="mt-auto">
       <button 
-        onClick={() => router.push('/donate')}
+        onClick={() => router.push('/support')}
         className="w-full bg-[#D4AF37] text-[#1a2e2a] py-6 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all"
       >
         <Heart size={20} className="fill-[#1a2e2a]" />
@@ -252,7 +253,7 @@ export default function SiratLandingPage() {
         <div className="flex gap-4 bg-[#1a2e2a] text-[#D4AF37] px-4 py-1 rounded-full">
           <span>06d : 23h : 45m</span>
         </div>
-        <button onClick={() => router.push('/donate')} className="underline hover:scale-105 transition-transform">
+        <button onClick={() => router.push('/support')} className="underline hover:scale-105 transition-transform">
           BECOME A FOUNDING SUPPORTER →
         </button>
       </motion.div>
@@ -281,23 +282,73 @@ export default function SiratLandingPage() {
         </div>
       </section>
 
-      {/* 5. MISSION PROGRESS */}
-      <section className="bg-[#1a2e2a] py-20 px-6">
-        <div className="max-w-5xl mx-auto bg-[#fdfcf8] rounded-[4rem] p-12 md:p-20 text-[#1a2e2a] shadow-2xl">
-            <h2 className="text-5xl font-serif font-black italic mb-12 text-center md:text-left tracking-tighter">Mission Progress</h2>
-            <div className="space-y-4 mb-16">
+      {/* 5. MISSION PROGRESS - Premium Updated Version */}
+      <section className="bg-[#1a2e2a] py-24 px-6 relative overflow-hidden">
+        {/* Subtle Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#D4AF37]/5 blur-[120px] rounded-full -z-10" />
+
+        <div className="max-w-5xl mx-auto bg-[#fdfcf8] rounded-[4rem] p-10 md:p-20 text-[#1a2e2a] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden group">
+            
+            {/* Mission Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
+              <div className="space-y-2">
+                <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px]">Financial Transparency</p>
+                <h2 className="text-5xl md:text-6xl font-serif font-black italic tracking-tighter">Mission Progress</h2>
+              </div>
+              <button 
+                onClick={() => router.push('/support')}
+                className="bg-[#1a2e2a] text-[#D4AF37] px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2"
+              >
+                <Heart size={14} fill="currentColor" /> Fuel the Mission
+              </button>
+            </div>
+
+            {/* Progress Bar Area */}
+            <div className="space-y-6 mb-16">
                <div className="flex justify-between items-end">
-                  <span className="text-xs font-black uppercase opacity-40">Goal: $50,000</span>
-                  <span className="text-4xl font-serif italic font-bold">45% <span className="text-xs font-sans not-italic opacity-30 tracking-widest">RAISED</span></span>
+                  <div className="space-y-1">
+                    <span className="text-xs font-black uppercase opacity-40">Goal: $50,000</span>
+                    <p className="text-sm font-bold text-gray-400">Server & AI Training Costs</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-5xl font-serif italic font-black text-[#1a2e2a]">45%</span>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mt-1">Funds Raised</p>
+                  </div>
                </div>
-               <div className="h-4 bg-gray-100 rounded-full overflow-hidden p-1 border border-gray-50">
+               
+               {/* Animated Progress Bar */}
+               <div className="h-5 bg-gray-100 rounded-full overflow-hidden p-1.5 border border-gray-50 shadow-inner relative">
                   <motion.div 
                     initial={{ width: 0 }}
                     whileInView={{ width: '45%' }}
-                    transition={{ duration: 2, ease: "easeOut" }}
-                    className="h-full bg-[#1a2e2a] rounded-full"
-                  />
+                    transition={{ duration: 2.5, ease: "circOut" }}
+                    className="h-full bg-gradient-to-r from-[#1a2e2a] to-[#D4AF37] rounded-full relative"
+                  >
+                    {/* Shimmer Effect */}
+                    <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12" />
+                  </motion.div>
                </div>
+            </div>
+
+            {/* Simple Breakdown Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-gray-100">
+               <div className="space-y-1">
+                  <p className="text-2xl font-serif font-bold italic">$22.5k</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Received</p>
+               </div>
+               <div className="space-y-1">
+                  <p className="text-2xl font-serif font-bold italic">1,240</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Backers</p>
+               </div>
+               <div className="space-y-1">
+                  <p className="text-2xl font-serif font-bold italic">07 Days</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Remaining</p>
+               </div>
+            </div>
+
+            {/* Decorative Icon */}
+            <div className="absolute -right-10 -bottom-10 opacity-[0.03] rotate-12 pointer-events-none">
+              <Sparkles size={300} />
             </div>
         </div>
       </section>
