@@ -109,7 +109,7 @@ export default function SiratLandingPage() {
         {/* Right: Actions */}
         <div className="flex items-center gap-2 md:gap-4">
           <button 
-            onClick={() => router.push('/chat')} 
+            onClick={() => router.push('/dashboard')} 
             className="flex items-center gap-2 px-3 md:px-6 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all"
           >
             <User size={16} className="text-[#D4AF37]" />
