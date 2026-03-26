@@ -479,7 +479,7 @@ const deleteChat = async (e: React.MouseEvent, id: string) => {
       value={query}
       onChange={(e) => setQuery(e.target.value)}
       onKeyDown={(e) => e.key === 'Enter' && handleSearch(query)}
-      placeholder="Bol kar ya likh kar sawal poochein..."
+      placeholder="Ask a question by speaking or writing....."
       className="w-full py-5 px-8 pr-32 rounded-[2rem] border border-gray-200 focus:ring-8 focus:ring-sirat-gold/5 outline-none shadow-2xl transition-all"
     />
 
