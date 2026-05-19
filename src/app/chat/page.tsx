@@ -62,19 +62,51 @@ function ChatContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false); 
 const [prayerTimes, setPrayerTimes] = useState<any>(null);
+const [locationName, setLocationName] = useState<string>("Your Location");
 
 useEffect(() => {
-  const fetchPrayers = async () => {
+  const fetchPrayersByLocation = async () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        try {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          // 1. Fetch Prayer Times using Coordinates
+          const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=1`);
+          const data = await res.json();
+          setPrayerTimes(data.data.timings);
+
+          // 2. Optional: Fetch City Name for Display (Reverse Geocoding)
+          const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+          const geoData = await geoRes.json();
+          setLocationName(geoData.city || geoData.locality || "Your Location");
+          
+        } catch (err) {
+          console.error("Prayer/Geo API error:", err);
+        }
+      }, (error) => {
+        console.error("Geolocation error:", error);
+        // Fallback to Lahore if user denies location access
+        fetchPrayersFallback();
+      });
+    } else {
+      fetchPrayersFallback();
+    }
+  };
+
+  const fetchPrayersFallback = async () => {
     try {
-      // Lahore ke liye Prayer Times fetch karna
       const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Lahore&country=Pakistan&method=1');
       const data = await res.json();
       setPrayerTimes(data.data.timings);
+      setLocationName("Lahore, PK");
     } catch (err) {
-      console.error("Prayer API error:", err);
+      console.error("Fallback error:", err);
     }
   };
-  fetchPrayers();
+
+  fetchPrayersByLocation();
 }, []);
 
 const [isListening, setIsListening] = useState(false);
