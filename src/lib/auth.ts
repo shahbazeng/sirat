@@ -1,10 +1,10 @@
-import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -13,21 +13,40 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-        
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Invalid Credentials");
+        }
+
+        // 1. Database se user find karein (lowercase email validation ke sath)
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email.toLowerCase().trim() }
         });
 
-        // Yahan aap password check ka logic lagayein (e.g., bcrypt)
-        if (user && user.password === credentials.password) {
-          return { id: user.id, name: user.name, email: user.email };
+        if (!user || !user.password) {
+          throw new Error("User not found");
         }
-        return null;
+
+        // 2. Encrypted Password Match karein
+        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isPasswordCorrect) {
+          throw new Error("Incorrect Password");
+        }
+
+        // 3. Agar sab sahi hai to user profile object return karein
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        };
       }
     })
   ],
-  session: { strategy: "jwt" },
+  pages: {
+    signIn: '/login', // custom login page target
+  },
+  session: {
+    strategy: "jwt" as const,
+  },
   secret: process.env.NEXTAUTH_SECRET,
-  pages: { signIn: "/login" }
 };

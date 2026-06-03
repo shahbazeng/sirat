@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut, SessionProvider } from "next-auth/react";
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Send, Home, Loader2, Sparkles, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic, BookOpen, Volume2, X, ChevronLeft
+  Send, Home, Loader2, Sparkles, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic, BookOpen, Volume2, ChevronLeft
 } from 'lucide-react';
 
 interface Message {
@@ -19,35 +19,26 @@ interface ChatSession {
   title: string;
   messages: Message[];
   createdAt: string;
+  userId?: string;
+  userEmail?: string;
 }
 
-// --- STANDARD CONFIGURATION: Absolute LAN Node IP Adapter ---
 const BASE_URL = "http://192.168.100.25:3000"; 
 
 function ChatContent() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  let sessionContext: any = null;
-  try {
-    sessionContext = useSession();
-  } catch (e) {
-    console.warn("NextAuth isolation fallback container activated standard state safely.");
-  }
+  const { data: session, status } = useSession();
 
-  const session = sessionContext?.data || null;
-  const status = sessionContext?.status || "authenticated"; 
-
-  const activeUser = session?.user || { 
-    name: "Shahbaz Ali", 
-    email: "shahbaz@gmail.com" 
-  }; 
+  const activeUser = {
+    name: session?.user?.name || "Momin Seeker",
+    email: session?.user?.email || "seeker@sirat.ai"
+  };
   
   const [query, setQuery] = useState("");
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  
-  // FIXED UI CONTROL: Sidebar starts open but is fully toggleable on ALL screen resolutions
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
   const [isLoading, setIsLoading] = useState(false); 
   const [prayerTimes, setPrayerTimes] = useState<any>(null);
@@ -55,12 +46,18 @@ function ChatContent() {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  // Responsive tracker to adjust initial sidebar behavior based on device footprint
+  // Dynamic Unique Storage Key per user token schema
+  const userCacheKey = `sirat_chat_cache_${activeUser.email.replace(/[^a-zA-Z0-9]/g, "_")}`;
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (window.innerWidth < 1024) {
-        setIsSidebarOpen(false); // Mobile standard defaults close
-      }
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
     }
   }, []);
 
@@ -103,58 +100,42 @@ function ChatContent() {
     }
   }, [status]);
 
+  // FIXED INTERCEPT PIPELINE: Dependency array size aur items order ko strictly constant kar diya hai
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/chat`, { signal: AbortSignal.timeout(5000) });
-        if (!res.ok) throw new Error("History connection bypass required.");
+        const res = await fetch(`${BASE_URL}/api/chat`, { 
+  method: 'GET',
+  credentials: 'include' // <--- Yeh line add karein
+});
+        if (!res.ok) throw new Error("History security sync intercept.");
         const data = await res.json();
+        
         if (Array.isArray(data)) {
-          setSessions(data);
-          localStorage.setItem("sirat_chat_cache", JSON.stringify(data));
+          const strictlyFilteredChats = data.filter((s: ChatSession) => s.userEmail === activeUser.email);
+          setSessions(strictlyFilteredChats);
+          localStorage.setItem(userCacheKey, JSON.stringify(strictlyFilteredChats));
         }
       } catch (err) {
-        console.warn("Network offline mapping: Triggering client memory storage lookup.");
-        const cached = localStorage.getItem("sirat_chat_cache");
-        if (cached) setSessions(JSON.parse(cached));
+        const cached = localStorage.getItem(userCacheKey);
+        if (cached) {
+          setSessions(JSON.parse(cached));
+        } else {
+          setSessions([]); 
+        }
       }
     };
-    if (status === "authenticated") fetchHistory();
-  }, [status, currentSessionId]);
+    
+    if (status === "authenticated" && session?.user?.email && activeUser.email !== "seeker@sirat.ai") {
+      fetchHistory();
+    } else if (status === "authenticated" && !session?.user?.email) {
+      setSessions([]);
+    }
+    // FIXED DEPENDENCY SIZE: Mismatches block karne ke liye primitive variables use kiye hain jo array size constant rakhein ge
+  }, [status, currentSessionId, userCacheKey, activeUser.email]);
 
   useEffect(() => {
-    const fetchPrayersByLocation = async () => {
-      if (typeof navigator !== "undefined" && "geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          try {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=1`);
-            const data = await res.json();
-            if (data?.data?.timings) {
-              setPrayerTimes(data.data.timings);
-            } else {
-              fetchPrayersFallback();
-            }
-
-            const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
-            const geoData = await geoRes.json();
-            setLocationName(geoData.city || geoData.locality || "Your Location");
-            
-          } catch (err) {
-            console.error("Prayer Live API error:", err);
-            fetchPrayersFallback();
-          }
-        }, (error) => {
-          fetchPrayersFallback();
-        });
-      } else {
-        fetchPrayersFallback();
-      }
-    };
-
-    const fetchPrayersFallback = async () => {
+    const fetchPrayers = async () => {
       try {
         const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Lahore&country=Pakistan&method=1');
         const data = await res.json();
@@ -163,11 +144,10 @@ function ChatContent() {
           setLocationName("Lahore, PK");
         }
       } catch (err) {
-        console.error("Namaz API absolute connectivity collapse:", err);
+        console.error("Namaz API Error:", err);
       }
     };
-
-    fetchPrayersByLocation();
+    fetchPrayers();
   }, []);
 
   useEffect(() => {
@@ -181,7 +161,7 @@ function ChatContent() {
   const startListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Aapka device browser recording layer architecture block support nahi karta.");
+      alert("Aapka device support nahi karta.");
       return;
     }
     const recognition = new SpeechRecognition();
@@ -189,21 +169,13 @@ function ChatContent() {
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setQuery(transcript);
+      setQuery(event.results[0][0].transcript);
     };
     recognition.start();
   };
    
   const stripMarkdown = (text: string) => {
-    return text
-      .replace(/\[\d+:\d+\]/g, '')
-      .replace(/[#*`_~]/g, '')     
-      .replace(/!\[.*?\]\(.*?\)/g, '') 
-      .replace(/\[.*?\]\(.*?\)/g, '')  
-      .replace(/\n/g, ' ')         
-      .replace(/\s+/g, ' ')        
-      .trim();
+    return text.replace(/\[\d+:\d+\]/g, '').replace(/[#*`_~]/g, '').replace(/\n/g, ' ').trim();
   };
 
   const speak = (text: string) => {
@@ -213,50 +185,12 @@ function ChatContent() {
         setIsSpeaking(false);
         return;
       }
-
       const cleanText = stripMarkdown(text);
-      const chunks = cleanText.split(/[.!?\n]+/).filter(c => c.trim().length > 0);
-      let currentChunk = 0;
-      let heartbeatInterval: any;
-
-      const speakNextChunk = () => {
-        if (currentChunk < chunks.length) {
-          const utterance = new SpeechSynthesisUtterance(chunks[currentChunk].trim());
-          const voices = window.speechSynthesis.getVoices();
-          const urduVoice = voices.find(v => v.lang.includes('ur')) || voices.find(v => v.lang.includes('hi'));
-          
-          if (urduVoice) utterance.voice = urduVoice;
-          utterance.lang = 'ur-PK';
-          utterance.rate = 1.1;
-
-          utterance.onstart = () => {
-            setIsSpeaking(true);
-            heartbeatInterval = setInterval(() => {
-              window.speechSynthesis.pause();
-              window.speechSynthesis.resume();
-            }, 5000);
-          };
-
-          utterance.onend = () => {
-            clearInterval(heartbeatInterval);
-            currentChunk++;
-            if (currentChunk < chunks.length) {
-              speakNextChunk();
-            } else {
-              setIsSpeaking(false);
-            }
-          };
-
-          utterance.onerror = () => {
-            clearInterval(heartbeatInterval);
-            setIsSpeaking(false);
-            window.speechSynthesis.cancel();
-          };
-
-          window.speechSynthesis.speak(utterance);
-        }
-      };
-      speakNextChunk();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = 'ur-PK';
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -268,63 +202,52 @@ function ChatContent() {
   const deleteChat = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     if (!confirm("Kya aap ye chat delete karna chahte hain?")) return;
-
     try {
       const res = await fetch(`${BASE_URL}/api/chat?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         const updated = sessions.filter(s => s.id !== id);
         setSessions(updated);
-        localStorage.setItem("sirat_chat_cache", JSON.stringify(updated));
+        localStorage.setItem(userCacheKey, JSON.stringify(updated));
         if (currentSessionId === id) setCurrentSessionId(null);
       }
     } catch (err) {
-      console.error("Delete call exception intercept:", err);
+      console.error(err);
     }
   };
 
   const handleSearch = async (text: string) => {
     if (!text.trim() || isLoading) return;
-
     setQuery("");
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          prompt: text,
-          sessionId: currentSessionId 
-        }),
-      });
-      
+      // FIXED: credentials parameters yahan bhi add kiya
+const response = await fetch(`${BASE_URL}/api/chat`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'include', // <--- Yeh line add karein
+  body: JSON.stringify({ 
+    prompt: text, 
+    sessionId: currentSessionId,
+    userEmail: activeUser.email 
+  }),
+});
       const data = await response.json();
-      
       if (data && data.id) {
         setSessions(prev => {
-          const exists = prev.find(s => s.id === data.id);
-          const updated = exists ? prev.map(s => s.id === data.id ? data : s) : [data, ...prev];
-          localStorage.setItem("sirat_chat_cache", JSON.stringify(updated));
+          const updated = prev.find(s => s.id === data.id) ? prev.map(s => s.id === data.id ? data : s) : [data, ...prev];
+          localStorage.setItem(userCacheKey, JSON.stringify(updated));
           return updated;
         });
         setCurrentSessionId(data.id);
       }
     } catch (e) {
-      console.error("Fallback interface transition executing:", e);
-      
       const mockSessionId = currentSessionId || `session-${Date.now()}`;
       const newMsgUser: Message = { role: 'user', content: text };
-      const newMsgAI: Message = { role: 'ai', content: "Momin Bhai, localized state execution configuration verified! AI processing module is ready. Make sure to check your backend server compilation status." };
-      
+      const newMsgAI: Message = { role: 'ai', content: "Momin Bhai, network connection dynamic loop fallback state checked. Please verify terminal database deployment status." };
       setSessions(prev => {
-        const exists = prev.find(s => s.id === mockSessionId);
-        let updated;
-        if (exists) {
-          updated = prev.map(s => s.id === mockSessionId ? { ...s, messages: [...s.messages, newMsgUser, newMsgAI] } : s);
-        } else {
-          updated = [{ id: mockSessionId, title: text.slice(0, 30) + "...", messages: [newMsgUser, newMsgAI], createdAt: new Date().toISOString() }, ...prev];
-        }
-        localStorage.setItem("sirat_chat_cache", JSON.stringify(updated));
+        const updated = prev.find(s => s.id === mockSessionId) ? prev.map(s => s.id === mockSessionId ? { ...s, messages: [...s.messages, newMsgUser, newMsgAI] } : s) : [{ id: mockSessionId, title: text.slice(0, 30) + "...", messages: [newMsgUser, newMsgAI], createdAt: new Date().toISOString(), userEmail: activeUser.email }, ...prev];
+        localStorage.setItem(userCacheKey, JSON.stringify(updated));
         return updated;
       });
       setCurrentSessionId(mockSessionId);
@@ -335,29 +258,28 @@ function ChatContent() {
 
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
+  if (status === "loading") {
+    return <div className="h-screen flex items-center justify-center bg-[#fdfcf8] font-black uppercase tracking-widest text-sirat-dark opacity-30">Synchronizing Momin Session Token...</div>;
+  }
+
   return (
     <div className="flex h-screen w-screen bg-[#fdfcf8] overflow-hidden font-sans text-sirat-dark relative">
       
-      {/* Mobile Responsive Backdrop Mask Layer */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md lg:hidden block"
-            style={{ zIndex: 9998 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md lg:hidden block z-[9998]"
           />
         )}
       </AnimatePresence>
 
-      {/* FIXED RESPONSIVENESS: Collapsible Sidebar Framework for BOTH Desktop & Mobile views */}
+      {/* ================= DYNAMIC SIDEBAR INTERFACE ================= */}
       <aside 
         className={`
           fixed top-0 bottom-0 left-0 h-full w-72 bg-sirat-dark text-white p-5 flex flex-col shrink-0
-          lg:relative lg:translate-x-0
-          transition-all duration-300 ease-in-out will-change-transform
+          lg:relative lg:translate-x-0 transition-all duration-300 ease-in-out will-change-transform
           ${isSidebarOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:p-0 lg:opacity-0 overflow-hidden'}
         `}
         style={{ zIndex: 9999 }}
@@ -369,13 +291,7 @@ function ChatContent() {
             </div>
             <span className="text-xl font-black italic tracking-tighter uppercase">Sirat<span className="text-sirat-gold">.ai</span></span>
           </div>
-          
-          {/* Hide Control Icon Button inside the Sidebar Panel */}
-          <button 
-            onClick={() => setIsSidebarOpen(false)} 
-            className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-full transition-all"
-            title="Hide Sidebar"
-          >
+          <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-full lg:hidden">
             <ChevronLeft size={20} />
           </button>
         </div>
@@ -387,7 +303,6 @@ function ChatContent() {
           <Plus size={18} /> New Discussion
         </button>
         
-        {/* Dynamic Inner Scrollable Thread List */}
         <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar min-h-0">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4 px-2 flex items-center gap-2 sticky top-0 bg-sirat-dark py-1 z-10">
             <History size={12}/> Recent History
@@ -401,17 +316,14 @@ function ChatContent() {
                 <MessageSquare size={16} className="shrink-0" />
                 <span className="truncate pr-6">{s.title}</span>
               </button>
-              <button 
-                onClick={(e) => deleteChat(e, s.id)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white/20 hover:text-red-400 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
-              >
+              <button onClick={(e) => deleteChat(e, s.id)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white/20 hover:text-red-400 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                 <Trash2 size={14} />
               </button>
             </div>
           ))}
         </div>
 
-        {/* Namaz Grid Component Container */}
+        {/* Prayers Tracking Panel */}
         <div className="mb-4 p-4 bg-white/5 rounded-2xl border border-white/5 space-y-3 shrink-0 mt-4">
           <p className="text-[10px] font-black uppercase tracking-widest opacity-40 flex items-center gap-2">
             <Sparkles size={12} className="text-sirat-gold" /> Prayer Times ({locationName})
@@ -432,47 +344,39 @@ function ChatContent() {
           </div>
         </div>
 
-        {/* User Workspace Panel Profile */}
+        {/* PROFILE CARD */}
         <div className="pt-4 border-t border-white/10 shrink-0">
           <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl mb-3 border border-white/5">
-            <div className="w-10 h-10 rounded-full bg-sirat-gold flex items-center justify-center text-sirat-dark font-black text-lg shrink-0">
-              {activeUser?.name?.charAt(0).toUpperCase()}
+            <div className="w-10 h-10 rounded-full bg-sirat-gold flex items-center justify-center text-sirat-dark font-black text-lg shrink-0 select-none">
+              {activeUser.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-bold truncate">{activeUser?.name}</p>
-              <p className="text-[10px] opacity-50 truncate">{activeUser?.email}</p>
+              <p className="text-sm font-bold truncate">{activeUser.name}</p>
+              <p className="text-[10px] opacity-50 truncate">{activeUser.email}</p>
             </div>
           </div> 
           <button 
-            onClick={() => {
-              if (sessionContext && typeof signOut === "function") signOut({ callbackUrl: '/login' });
-              else router.push('/login');
-            }}
+            onClick={() => signOut({ callbackUrl: '/login' })}
             className="flex items-center gap-3 w-full p-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-bold"
           >
-            <LogOut size={18} /> Sign Out
+            <LogOut size={18} /> Exit Sanctuary
           </button>
         </div>
       </aside>
 
-      {/* Main Container Viewport Fixed Area (Prevents Bottom Hidden Inputs) */}
+      {/* ================= MAIN CONTAINER VIEWPORT ================= */}
       <div className="flex-1 flex flex-col h-full min-w-0 w-full relative overflow-hidden">
         
-        {/* Navbar Layer with Dynamic Action Toggle Control Icon Button */}
         <header className="bg-white/95 backdrop-blur-md border-b px-4 md:px-6 py-4 min-h-[70px] w-full flex items-center justify-between relative z-40 shadow-sm shrink-0">
-          
-          {/* Menu Trigger Button Box (Visible on BOTH Mobile & Desktop when Sidebar is hidden) */}
           <div className="flex items-center relative">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className={`p-2.5 rounded-xl text-sirat-dark transition-all hover:bg-gray-100 ${!isSidebarOpen ? 'bg-sirat-gold/10 ring-4 ring-sirat-gold/5' : ''}`}
-              title={isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
             >
               <Menu size={24} />
             </button>
           </div>
           
-          {/* Logo Brand Title (Hidden on desktop sidebar layout state smoothly) */}
           <div className={`flex items-center justify-center lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 pointer-events-none transition-opacity duration-200 ${isSidebarOpen ? 'lg:opacity-0' : 'lg:opacity-100'}`}>
              <span className="text-base md:text-lg font-black italic tracking-tighter uppercase">
                Sirat<span className="text-sirat-gold">.ai</span>
@@ -480,24 +384,20 @@ function ChatContent() {
           </div>
           
           <div className="flex items-center ml-auto">
-            <button 
-              onClick={() => router.push('/')} 
-              className="p-2.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-sirat-dark transition-all"
-            >
+            <button onClick={() => router.push('/dashboard')} className="p-2.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-sirat-dark transition-all">
               <Home size={22}/>
             </button>
           </div>
         </header>
 
-        {/* Message Viewport Feed Area */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 space-y-6 bg-[#fdfcf8] min-w-0 w-full">
           {!currentSession && !isLoading && (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-8 py-10">
-              <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="w-16 h-16 bg-sirat-gold/10 rounded-full flex items-center justify-center mb-2">
+              <div className="w-16 h-16 bg-sirat-gold/10 rounded-full flex items-center justify-center mb-2">
                 <Sparkles size={32} className="text-sirat-gold animate-pulse" />
-              </motion.div>
+              </div>
               <div className="space-y-3">
-                <h2 className="text-2xl md:text-3xl font-serif italic font-black text-sirat-dark">Assalam-o-Alaikum, {activeUser?.name}</h2>
+                <h2 className="text-2xl md:text-3xl font-serif italic font-black text-sirat-dark">Assalam-o-Alaikum, {activeUser.name}</h2>
                 <p className="text-gray-400 text-xs md:text-sm max-w-sm mx-auto">Islam, Quran aur Hadith ke mutaliq koi bhi sawal poochein.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full px-2">
@@ -512,10 +412,7 @@ function ChatContent() {
           )}
 
           {currentSession?.messages?.map((msg, i) => (
-            <div 
-              key={`msg-${i}`} 
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2 md:gap-3`}
-            >
+            <div key={`msg-${i}`} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2 md:gap-3`}>
               {msg.role === 'ai' && (
                  <div className="w-8 h-8 rounded-lg bg-sirat-gold shrink-0 flex items-center justify-center shadow-md mt-1">
                    <Sparkles size={14} className="text-sirat-dark" />
@@ -562,7 +459,6 @@ function ChatContent() {
           <div ref={scrollRef} className="h-2" />
         </main>
 
-        {/* Input Interactive Element Block */}
         <footer className="p-3 md:p-6 bg-gradient-to-t from-[#fdfcf8] via-[#fdfcf8] to-transparent shrink-0 z-20 pb-6">
           <div className="max-w-4xl mx-auto relative flex items-center w-full">
             <input 
@@ -570,7 +466,7 @@ function ChatContent() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(query)}
-              placeholder="Ask a question by speaking or writing....."
+              placeholder="Ask Siraat AI anything regarding Islamic guidance..."
               className="w-full py-4 md:py-5 px-5 md:px-6 pr-28 rounded-[1.75rem] border border-gray-200 focus:ring-4 focus:ring-sirat-gold/5 outline-none shadow-xl transition-all text-xs md:text-sm bg-white"
             />
 
@@ -590,8 +486,8 @@ function ChatContent() {
               </button>
             </div>
           </div>
-          <p className="text-[9px] text-center mt-3 text-gray-400 font-medium tracking-wide">
-            &copy; 2026 Dawah Siraat. Knowledge is based on established Islamic Texts.
+          <p className="text-[9px] text-center mt-3 text-gray-400 font-bold tracking-wide uppercase">
+            &copy; 2026 Dawah Siraat · Verified Knowledge Environment
           </p>
         </footer>
       </div>
@@ -601,8 +497,10 @@ function ChatContent() {
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={<div className="h-screen flex items-center justify-center font-black uppercase tracking-widest text-sirat-dark opacity-20">Sirat AI Loading...</div>}>
-      <ChatContent />
-    </Suspense>
+    <SessionProvider>
+      <Suspense fallback={<div className="h-screen flex items-center justify-center font-black uppercase tracking-widest text-sirat-dark opacity-20">Sirat AI Loading...</div>}>
+        <ChatContent />
+      </Suspense>
+    </SessionProvider>
   );
 }

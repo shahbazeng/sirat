@@ -16,23 +16,31 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim() || !email.trim() || !password.trim()) return;
     setLoading(true);
 
     try {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ 
+          name: name.trim(), 
+          email: email.toLowerCase().trim(), 
+          password 
+        }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        router.push("/login?message=Account Created Successfully");
+        alert("Account Created Successfully! Please Sign In.");
+        router.push("/login");
       } else {
-        const data = await res.json();
         alert(data.error || "Registration failed. Please try again.");
       }
     } catch (err) {
-      alert("Network connection error.");
+      console.error("Register Submission Intercept Error:", err);
+      alert("Network connection configuration failure.");
     } finally {
       setLoading(false);
     }
@@ -64,7 +72,7 @@ export default function RegisterPage() {
           <div className="p-8 bg-white/5 border-l-2 border-[#D4AF37] rounded-r-3xl space-y-4">
              <BookOpen size={24} className="text-[#D4AF37]" />
              <p className="text-2xl font-serif italic leading-relaxed" dir="rtl">
-               وَقُل رَّبِّ زِدْنِي عِلْمًا
+               وَقُل رَّبِّ زِدْنِي عِلْمًا
              </p>
              <p className="text-sm text-white/60 font-medium tracking-wide">
                "My Lord, increase me in knowledge."
@@ -76,13 +84,11 @@ export default function RegisterPage() {
           </p>
         </motion.div>
 
-        {/* Decorative Glow */}
         <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[100px]" />
       </div>
 
       {/* RIGHT SIDE: CLEAN REGISTRATION FORM */}
       <div className="flex-1 flex items-center justify-center p-8 md:p-20 bg-white relative">
-        {/* Logo for mobile */}
         <div className="absolute top-8 left-8 md:hidden">
             <span className="text-xl font-black italic tracking-tighter uppercase text-[#1a2e2a]">Sirat<span className="text-[#D4AF37]">.ai</span></span>
         </div>
@@ -99,7 +105,6 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-4">
-              {/* Name */}
               <div className="relative group">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" size={18} />
                 <input 
@@ -111,7 +116,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Email */}
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" size={18} />
                 <input 
@@ -123,7 +127,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Password */}
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" size={18} />
                 <input 

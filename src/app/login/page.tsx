@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Mail, Lock, Sparkles, ArrowRight, Loader2, BookOpen, Globe, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Sparkles, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,27 +13,40 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
+    if (!email.trim() || !password.trim()) return;
 
-  // Pure Local Mobile UI Testing Bypass Layer
-  // Email aur password khali na ho, toh direct enter karwa do
-  if (email.trim() !== "" && password.trim() !== "") {
-     localStorage.setItem("user_logged_in", "true");
-     
-     // Direct 1-second navigation trigger to entry dashboard
-     router.push("/dashboard");
-     return;
-  }
-};
+    setLoading(true);
+
+    try {
+      // FIXED: Fake local tracking block remove karke actual NextAuth configuration framework apply kiya hai
+      const response = await signIn("credentials", {
+        email: email.toLowerCase().trim(),
+        password: password,
+        redirect: false,
+      });
+
+      if (response?.error) {
+        alert("Authentication Fault: Email ya Password durust nahi hai.");
+      } else {
+        localStorage.setItem("user_logged_in", "true");
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Login Interface Trigger Error:", err);
+      alert("Network server pipe connectivity failure.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#fdfcf8] flex flex-col md:flex-row overflow-hidden selection:bg-[#D4AF37] selection:text-white">
       
       {/* LEFT SIDE: THE CITY OF KNOWLEDGE VISUAL */}
       <div className="hidden md:flex md:w-1/2 bg-[#1a2e2a] relative flex-col justify-center p-20 text-white overflow-hidden">
-        {/* Subtle Islamic Pattern Overlay */}
         <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')]" />
-        {/* Divine Glows */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[100px]" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#D4AF37]/5 rounded-full blur-[80px]" />
 
@@ -72,7 +85,6 @@ export default function LoginPage() {
 
       {/* RIGHT SIDE: CLEAN LOGIN FORM */}
       <div className="flex-1 flex items-center justify-center p-8 md:p-20 relative bg-white">
-        {/* Mobile-only logo */}
         <div className="absolute top-8 left-8 md:hidden">
             <span className="text-xl font-black italic tracking-tighter uppercase text-[#1a2e2a]">Sirat<span className="text-[#D4AF37]">.ai</span></span>
         </div>
@@ -89,7 +101,6 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-4">
-              {/* Email */}
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" size={20} />
                 <input 
@@ -101,7 +112,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Password */}
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" size={20} />
                 <input 
@@ -122,7 +132,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Footer Card Section */}
           <div className="p-6 bg-[#fdfcf8] rounded-3xl border border-gray-50 text-center space-y-4">
             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
               Don't have an account yet?
