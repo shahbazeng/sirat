@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut, SessionProvider } from "next-auth/react";
 import ReactMarkdown from 'react-markdown';
@@ -23,8 +22,7 @@ interface ChatSession {
   userEmail?: string;
 }
 
-const BASE_URL = "http://192.168.100.25:3000"; 
-
+const BASE_URL = typeof window !== "undefined" ? window.location.origin : "";
 function ChatContent() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
