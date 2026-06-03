@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useSession, signOut, SessionProvider } from "next-auth/react";
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { 
   Send, Home, Loader2, Sparkles, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic, BookOpen, Volume2, ChevronLeft
 } from 'lucide-react';
