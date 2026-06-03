@@ -13,23 +13,18 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (res?.ok) {
-      router.push("/chat");
-      router.refresh();
-    } else {
-      alert("Invalid Credentials. Please check your email and password.");
-    }
-    setLoading(false);
-  };
+  // Pure Local Mobile UI Testing Bypass Layer
+  // Email aur password khali na ho, toh direct enter karwa do
+  if (email.trim() !== "" && password.trim() !== "") {
+     localStorage.setItem("user_logged_in", "true");
+     
+     // Direct 1-second navigation trigger to entry dashboard
+     router.push("/dashboard");
+     return;
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#fdfcf8] flex flex-col md:flex-row overflow-hidden selection:bg-[#D4AF37] selection:text-white">

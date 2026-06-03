@@ -1,323 +1,589 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from "next-auth/react";
+import ReactMarkdown from 'react-markdown';
+import { motion } from 'framer-motion';
 import { 
-  Book, Search, Play, Clock, LayoutGrid, List, Bookmark, 
-  Sparkles, Loader2, Heart, ShieldCheck, Globe, Beaker, 
-  ChevronRight, Plus, X, User, Zap
+  Send, Home, Loader2, Sparkles, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic, BookOpen, Volume2
 } from 'lucide-react';
 
-// --- TYPES ---
-interface Hero {
-  name: string;
-  title: string;
-  desc: string;
-  fullStory: string;
-  legacy: string;
-  quranConnect: string;
-  icon: React.ReactNode;
+interface Message {
+  role: 'user' | 'ai';
+  content: string;
 }
 
-export default function QuranPage() {
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: string;
+}
+
+// --- STANDARD CONFIGURATION: Absolute LAN Node IP Adapter ---
+const BASE_URL = "http://192.168.100.25:3000"; 
+
+function ChatContent() {
   const router = useRouter();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // --- STATE ---
-  const [activeTab, setActiveTab] = useState('surah');
-  const [surahs, setSurahs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedHero, setSelectedHero] = useState<Hero | null>(null);
+  const status = "authenticated"; 
+  const activeUser = { 
+    name: "Shahbaz Ali", 
+    email: "shahbaz@gmail.com" 
+  }; 
+  
+  const [query, setQuery] = useState("");
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false); 
+  const [prayerTimes, setPrayerTimes] = useState<any>(null);
+  const [locationName, setLocationName] = useState<string>("Lahore");
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
-  // --- GLOBAL DATA ---
-  const muslimHeroes: Hero[] = [
-    { 
-      name: "Hazrat Ali (R.A)", 
-      title: "The Gateway to Knowledge", 
-      desc: "Renowned for his unparalleled wisdom, deep judicial insight, and immense bravery.",
-      fullStory: "Hazrat Ali (R.A) was the cousin and son-in-law of the Prophet (PBUH). Known as the 'Lion of Allah,' he is celebrated globally for his sermons and contributions to Islamic jurisprudence and spiritual depth.",
-      legacy: "Established foundational principles of Justice and Logic",
-      quranConnect: "Surah Al-Baqarah [207] - Regarding Self-Sacrifice",
-      icon: <Zap className="text-[#D4AF37]" /> 
-    },
-    { 
-      name: "Salahuddin Ayyubi", 
-      title: "The Great Liberator", 
-      desc: "A symbol of chivalry and justice who unified the Muslim world.",
-      fullStory: "Sultan Saladin is respected by both East and West for his mercy during the Crusades. In 1187, he liberated Jerusalem, treating the defeated with unprecedented kindness and upholding strict moral codes.",
-      legacy: "Unified the Levant and restored peace to Jerusalem",
-      quranConnect: "Surah Al-Ma'idah [8] - Regarding Absolute Justice",
-      icon: <ShieldCheck className="text-[#D4AF37]" /> 
-    },
-    { 
-      name: "Ibn al-Haytham", 
-      title: "Father of Optics", 
-      desc: "The scientist who revolutionized our understanding of light and vision.",
-      fullStory: "Often referred to as the 'First Scientist,' he pioneered the scientific method. His 'Book of Optics' proved that light reflects off objects into the eye, laying the foundation for modern photography and physics.",
-      legacy: "Invented the Camera Obscura and the Scientific Method",
-      quranConnect: "Surah Al-An'am [104] - Regarding Vision and Insight",
-      icon: <Sparkles className="text-[#D4AF37]" /> 
-    },
-  ];
+  const renderFormattedMessage = (content: string) => {
+    const parts = content.split(/(\[\d+:\d+\])/g);
+    return parts.map((part, i) => {
+      if (part.match(/(\[\d+:\d+\])/)) {
+        const match = part.match(/\[(\d+):(\d+)\]/);
+        if (match) {
+          const surahId = match[1];
+          const ayahId = match[2];
+          return (
+            <button 
+              key={`btn-${surahId}-${ayahId}-${i}`}
+              onClick={() => router.push(`/quran/${surahId}`)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-sirat-gold/20 text-sirat-gold rounded-lg font-black text-[10px] mx-1 hover:bg-sirat-gold hover:text-sirat-dark transition-all border border-sirat-gold/30 mb-1"
+            >
+              <BookOpen size={10} /> Surah {surahId}:{ayahId}
+            </button>
+          );
+        }
+      }
+      return (
+        <span key={`text-${i}`} className="inline prose prose-sm max-w-none">
+          <ReactMarkdown>{part}</ReactMarkdown>
+        </span>
+      );
+    });
+  };
 
-  const quranMiracles = [
-    { title: "The Expanding Universe", ayah: "Surah Adh-Dhariyat [47]", desc: "A 1400-year-old revelation describing the continuous expansion of the universe, a core concept in modern cosmology." },
-    { title: "Iron from Outer Space", ayah: "Surah Al-Hadid [25]", desc: "The Quran states iron was 'sent down,' aligning with modern findings that iron originated from supernova explosions in space." },
-  ];
-
-  const tabs = [
-    { id: 'surah', label: 'Surahs', icon: <List size={16} /> },
-    { id: 'para', label: 'Juz / Parts', icon: <LayoutGrid size={16} /> },
-    { id: 'bookmarks', label: 'Library', icon: <Bookmark size={16} /> },
-  ];
-
-  // --- FETCHING ---
   useEffect(() => {
-    async function fetchSurahs() {
-      try {
-        const res = await fetch('https://api.alquran.cloud/v1/surah');
-        const data = await res.json();
-        setSurahs(data.data || []);
-      } catch (err) {
-        console.error("Fetch Error:", err);
-      } finally {
-        setLoading(false);
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const q = urlParams.get('q');
+      if (q && status === "authenticated") {
+        handleSearch(q);
+        router.replace('/chat');
       }
     }
-    fetchSurahs();
+  }, [status]);
+
+  useEffect(() => {
+    const fetchPrayersByLocation = async () => {
+      if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          try {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=1`);
+            const data = await res.json();
+            if(data?.data?.timings) setPrayerTimes(data.data.timings);
+
+            const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+            const geoData = await geoRes.json();
+            setLocationName(geoData.city || geoData.locality || "Your Location");
+            
+          } catch (err) {
+            console.error("Prayer/Geo API error:", err);
+            fetchPrayersFallback();
+          }
+        }, (error) => {
+          console.error("Geolocation error:", error);
+          fetchPrayersFallback();
+        });
+      } else {
+        fetchPrayersFallback();
+      }
+    };
+
+    const fetchPrayersFallback = async () => {
+      try {
+        const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Lahore&country=Pakistan&method=1');
+        const data = await res.json();
+        if(data?.data?.timings) setPrayerTimes(data.data.timings);
+        setLocationName("Lahore, PK");
+      } catch (err) {
+        console.error("Fallback error:", err);
+      }
+    };
+
+    fetchPrayersByLocation();
   }, []);
 
-  const filteredSurahs = surahs.filter((s: any) => 
-    s?.englishName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s?.number?.toString().includes(searchTerm)
-  );
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert("Aapka browser voice support nahi karta.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ur-PK';
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setQuery(transcript);
+    };
+
+    recognition.start();
+  };
+   
+  const stripMarkdown = (text: string) => {
+    return text
+      .replace(/\[\d+:\d+\]/g, '')
+      .replace(/[#*`_~]/g, '')     
+      .replace(/!\[.*?\]\(.*?\)/g, '') 
+      .replace(/\[.*?\]\(.*?\)/g, '')  
+      .replace(/\n/g, ' ')         
+      .replace(/\s+/g, ' ')        
+      .trim();
+  };
+
+  const speak = (text: string) => {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+        return;
+      }
+
+      const cleanText = stripMarkdown(text);
+      const chunks = cleanText.split(/[.!?\n]+/).filter(c => c.trim().length > 0);
+      let currentChunk = 0;
+      let heartbeatInterval: any;
+
+      const speakNextChunk = () => {
+        if (currentChunk < chunks.length) {
+          const utterance = new SpeechSynthesisUtterance(chunks[currentChunk].trim());
+          const voices = window.speechSynthesis.getVoices();
+          const urduVoice = voices.find(v => v.lang.includes('ur')) || voices.find(v => v.lang.includes('hi'));
+          
+          if (urduVoice) utterance.voice = urduVoice;
+          utterance.lang = 'ur-PK';
+          utterance.rate = 1.1;
+
+          utterance.onstart = () => {
+            setIsSpeaking(true);
+            heartbeatInterval = setInterval(() => {
+              window.speechSynthesis.pause();
+              window.speechSynthesis.resume();
+            }, 5000);
+          };
+
+          utterance.onend = () => {
+            clearInterval(heartbeatInterval);
+            currentChunk++;
+            if (currentChunk < chunks.length) {
+              speakNextChunk();
+            } else {
+              setIsSpeaking(false);
+            }
+          };
+
+          utterance.onerror = (event) => {
+            console.error("TTS Error:", event);
+            clearInterval(heartbeatInterval);
+            setIsSpeaking(false);
+            window.speechSynthesis.cancel();
+          };
+
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+
+      speakNextChunk();
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert("Jawab copy ho gaya!");
+  };
+
+  const deleteChat = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm("Kya aap ye chat delete karna chahte hain?")) return;
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/chat?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setSessions(prev => prev.filter(s => s.id !== id));
+        if (currentSessionId === id) setCurrentSessionId(null);
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/api/chat`);
+        if (!res.ok) return; 
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setSessions(data);
+        }
+      } catch (err) {
+        console.error("Database fetch error caught gracefully on Native Framework:", err);
+      }
+    };
+    if (status === "authenticated") fetchHistory();
+  }, [status]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [sessions, isLoading, currentSessionId]);
+
+  const handleSearch = async (text: string) => {
+    if (!text.trim() || isLoading) return;
+
+    setQuery("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          prompt: text,
+          sessionId: currentSessionId 
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data && data.id) {
+        setSessions(prev => {
+          const exists = prev.find(s => s.id === data.id);
+          if (exists) {
+            return prev.map(s => s.id === data.id ? data : s);
+          }
+          return [data, ...prev];
+        });
+        setCurrentSessionId(data.id);
+      }
+    } catch (e) {
+      console.error("Chat API native connection break:", e);
+      
+      const mockSessionId = currentSessionId || `mock-${Date.now()}`;
+      const newMsgUser: Message = { role: 'user', content: text };
+      const newMsgAI: Message = { role: 'ai', content: "Connection Fault: Please double check if your local server terminal is active." };
+      
+      setSessions(prev => {
+        const exists = prev.find(s => s.id === mockSessionId);
+        if (exists) {
+          return prev.map(s => s.id === mockSessionId ? { ...s, messages: [...s.messages, newMsgUser, newMsgAI] } : s);
+        }
+        return [{ id: mockSessionId, title: text, messages: [newMsgUser, newMsgAI], createdAt: new Date().toISOString() }, ...prev];
+      });
+      setCurrentSessionId(mockSessionId);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const currentSession = sessions.find(s => s.id === currentSessionId);
 
   return (
-    <div className="min-h-screen bg-[#fdfcf8] p-4 md:p-8 lg:p-12 font-sans selection:bg-[#D4AF37] selection:text-white pb-20 overflow-x-hidden">
-      <div className="max-w-6xl mx-auto space-y-12 md:space-y-16">
-        
-        {/* --- HEADER --- */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-100 pb-8 gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-[#D4AF37] font-black text-[10px] uppercase tracking-[0.4em]">
-              <Sparkles size={14} /> Sirat Global Platform
+    <div className="flex h-screen bg-[#fdfcf8] overflow-hidden font-sans text-sirat-dark w-full relative">
+      
+      {/* ================= 1. FIXED BACKDROP OVERLAY FOR NATIVE MOBILE ================= */}
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)}
+          onTouchStart={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-md lg:hidden block"
+          style={{ zIndex: 99998, position: 'fixed' }}
+        />
+      )}
+
+      {/* ================= 2. PURE NATIVE STANDARDS IOS COMPATIBLE DRAWER ================= */}
+      <aside 
+        className={`
+          fixed top-0 bottom-0 left-0 h-full w-72 bg-sirat-dark text-white p-5 flex flex-col
+          lg:relative lg:translate-x-0 lg:shadow-none
+          transition-transform duration-300 ease-in-out will-change-transform
+          ${isSidebarOpen ? 'translate-x-0 shadow-[15px_0_40px_rgba(0,0,0,0.6)]' : '-translate-x-full'}
+        `}
+        style={{ zIndex: 99999, position: 'fixed', touchAction: 'pan-y' }}
+      >
+        {/* Brand Header area */}
+        <div className="flex items-center justify-between mb-8 px-2 pt-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-sirat-gold rounded-lg shadow-md">
+              <Sparkles size={20} className="text-sirat-dark" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-serif font-black italic text-[#1a2e2a]">The Noble <span className="text-[#D4AF37]">Quran</span></h1>
-            <p className="text-gray-400 text-xs md:text-sm font-medium">Digital Hub for Divine Revelation & Historical Legacies</p>
+            <span className="text-xl font-black italic tracking-tighter uppercase">Sirat<span className="text-sirat-gold">.ai</span></span>
           </div>
-          <div className="flex bg-[#1a2e2a] p-4 rounded-3xl shadow-xl border-b-4 border-[#D4AF37] text-white flex-col items-center">
-             <ShieldCheck className="text-[#D4AF37]" size={28} />
+          
+          <button 
+            onClick={() => setIsSidebarOpen(false)} 
+            onTouchEnd={() => setIsSidebarOpen(false)}
+            className="lg:hidden p-2 text-white/60 hover:text-white bg-white/10 rounded-full transition-all"
+            style={{ cursor: 'pointer' }}
+          >
+            <Plus size={20} className="rotate-45" />
+          </button>
+        </div>
+
+        <button 
+          onClick={() => { setCurrentSessionId(null); setIsSidebarOpen(false); }}
+          className="flex items-center gap-2 w-full p-4 border border-white/10 rounded-2xl hover:bg-sirat-gold hover:text-sirat-dark transition-all mb-6 font-bold text-sm shadow-inner"
+        >
+          <Plus size={18} /> New Discussion
+        </button>
+        
+        {/* Recent History Scroll Window */}
+        <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-4 px-2 flex items-center gap-2">
+            <History size={12}/> Recent History
+          </p>
+          {sessions.map(s => (
+            <div key={s.id} className="group relative">
+              <button 
+                onClick={() => { setCurrentSessionId(s.id); setIsSidebarOpen(false); }}
+                className={`flex items-center gap-3 w-full p-3 rounded-xl text-left text-sm transition-all ${currentSessionId === s.id ? 'bg-sirat-gold text-sirat-dark font-bold' : 'hover:bg-white/5 opacity-70'}`}
+              >
+                <MessageSquare size={16} className="shrink-0" />
+                <span className="truncate pr-6">{s.title}</span>
+              </button>
+              
+              <button 
+                onClick={(e) => deleteChat(e, s.id)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 lg:group-hover:opacity-100"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Dynamic Prayer Widget container */}
+        <div className="mb-6 p-4 bg-white/5 rounded-2xl border border-white/5 space-y-3">
+          <p className="text-[10px] font-black uppercase tracking-widest opacity-40 flex items-center gap-2">
+            <Sparkles size={12} className="text-sirat-gold" /> Prayer Times ({locationName})
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            {[
+              { label: "Fajr", time: prayerTimes?.Fajr },
+              { label: "Dhuhr", time: prayerTimes?.Dhuhr },
+              { label: "Asr", time: prayerTimes?.Asr },
+              { label: "Maghrib", time: prayerTimes?.Maghrib },
+              { label: "Isha", time: prayerTimes?.Isha }
+            ].map((p, idx) => (
+              <div key={`prayer-${idx}`} className="flex justify-between p-2 bg-sirat-dark/50 rounded-lg border border-white/5">
+                <span className="opacity-60">{p.label}</span>
+                <span className="font-bold text-sirat-gold">{p.time || "--:--"}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Profile Allocation Segment */}
+        <div className="mt-auto pt-6 border-t border-white/10">
+          <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl mb-3 border border-white/5">
+            <div className="w-10 h-10 rounded-full bg-sirat-gold flex items-center justify-center text-sirat-dark font-black text-lg">
+              {activeUser?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-bold truncate">{activeUser?.name}</p>
+              <p className="text-[10px] opacity-50 truncate">{activeUser?.email}</p>
+            </div>
+          </div> 
+          <button 
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="flex items-center gap-3 w-full p-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-bold"
+          >
+            <LogOut size={18} /> Sign Out
+          </button>
+        </div>
+      </aside>
+
+      {/* ================= 3. RE-CONFIGURED VIEWPORT INTERFACE (iOS Specific Viewport Fix) ================= */}
+      {/* Humne flex-col stack aur absolute height limits ko clear kar diya taake layer events block na hon */}
+      <div className="flex-1 flex flex-col h-full min-w-0 w-full relative z-10 overflow-hidden">
+        
+        {/* ================= FIXED TOP HEADER: LOWERED TO CLEAR NOTCH / DYNAMIC ISLAND ================= */}
+        {/* 'pt-12 pb-4 min-h-[90px]' forces the header down past the status bar so it is perfectly responsive and clickable */}
+        <header className="bg-white/95 backdrop-blur-md border-b px-6 pt-12 pb-4 min-h-[90px] w-full flex items-center justify-between relative z-50 shadow-sm">
+          
+          {/* Hamburger Trigger Button Box */}
+          <div className="flex items-center lg:hidden relative" style={{ zIndex: 100 }}>
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsSidebarOpen(true);
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsSidebarOpen(true);
+              }}
+              className="p-3 -ml-2 hover:bg-gray-100 active:bg-gray-200 rounded-xl text-sirat-dark block"
+              style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+            >
+              <Menu size={26} />
+            </button>
+          </div>
+          
+          {/* Logo Brand Title (Middle Dynamic Stack Alignment Fixed) */}
+          <div className="flex items-center justify-center lg:hidden absolute left-1/2 top-2/3 -translate-x-1/2 -translate-y-1/2 pointer-events-none mt-1 z-10">
+             <span className="text-lg font-black italic tracking-tighter uppercase select-none">
+               Sirat<span className="text-sirat-gold">.ai</span>
+             </span>
+          </div>
+          
+          {/* Home Icon Action Trigger */}
+          <div className="flex items-center ml-auto relative" style={{ zIndex: 100 }}>
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                router.push('/');
+              }} 
+              onTouchStart={(e) => {
+                e.preventDefault();
+                router.push('/');
+              }}
+              className="p-3 -mr-2 hover:bg-gray-100 active:bg-gray-200 rounded-full text-gray-400 hover:text-sirat-dark transition-all block"
+              style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+            >
+              <Home size={24}/>
+            </button>
           </div>
         </header>
 
-        {/* --- MOOD SELECTOR --- */}
-        <section className="bg-white border border-gray-100 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-10 shadow-sm relative overflow-hidden">
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="text-center lg:text-left space-y-1">
-              <h3 className="text-2xl font-serif font-black italic text-[#1a2e2a] flex items-center gap-3 justify-center lg:justify-start">
-                <Heart size={24} className="text-red-500 fill-red-500" /> Spiritual Resonance
-              </h3>
-              <p className="text-sm text-gray-400 font-medium">How is your heart feeling today?</p>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-              {['Anxious', 'Grateful', 'Lost', 'Weak', 'Happy'].map((mood) => (
-                <button 
-                  key={mood}
-                  onClick={() => router.push(`/chat?q=Quranic verses for someone feeling ${mood}`)}
-                  className="px-5 md:px-8 py-3 md:py-4 rounded-2xl bg-[#fdfcf8] border border-gray-100 text-[10px] font-black uppercase tracking-widest hover:bg-[#D4AF37] hover:text-white transition-all shadow-sm active:scale-95"
-                >
-                  {mood}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* --- MUSLIM HEROES --- */}
-        <section className="space-y-8">
-          <div className="flex items-center gap-3 px-2">
-             <User className="text-[#D4AF37]" size={24} />
-             <h3 className="text-2xl font-serif font-black italic">Great Muslim Legacies</h3>
-          </div>
-          <div className="flex gap-6 overflow-x-auto pb-6 no-scrollbar snap-x px-2">
-            {muslimHeroes.map((hero, i) => (
-              <motion.div 
-                key={i}
-                whileHover={{ y: -8 }}
-                onClick={() => setSelectedHero(hero)}
-                className="min-w-[280px] md:min-w-[340px] bg-[#1a2e2a] text-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl relative overflow-hidden group cursor-pointer snap-start"
-              >
-                <div className="mb-6 p-4 bg-white/5 w-fit rounded-2xl group-hover:bg-[#D4AF37] group-hover:text-[#1a2e2a] transition-all">{hero.icon}</div>
-                <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.3em] mb-2">{hero.title}</p>
-                <h4 className="text-2xl md:text-3xl font-serif font-bold italic mb-4">{hero.name}</h4>
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-50 group-hover:opacity-100 transition-opacity">
-                  View Legacy <ChevronRight size={14} />
-                </div>
+        {/* Chat Scrolling Content Matrix */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-10 space-y-8 bg-[#fdfcf8] z-10">
+          {!currentSession && !isLoading && (
+            <div className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-10 py-10">
+              <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="w-20 h-20 bg-sirat-gold/10 rounded-full flex items-center justify-center mb-4">
+                <Sparkles size={40} className="text-sirat-gold animate-pulse" />
               </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* --- MIRACLES & RESUME --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {quranMiracles.map((m, i) => (
-              <div key={i} className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-gray-100 flex flex-col justify-between hover:border-[#D4AF37]/30 transition-all shadow-sm">
-                <div className="space-y-4">
-                  <div className="p-3 bg-[#fdfcf8] rounded-xl text-[#D4AF37] w-fit"><Beaker size={24} /></div>
-                  <h5 className="font-serif font-black italic text-xl text-[#1a2e2a]">{m.title}</h5>
-                  <p className="text-gray-400 text-xs leading-relaxed">{m.desc}</p>
-                </div>
-                <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] mt-6 border-t pt-4">{m.ayah}</p>
+              <div className="space-y-4">
+                <h2 className="text-3xl font-serif italic font-black text-sirat-dark">Assalam-o-Alaikum, {activeUser?.name}</h2>
+                <p className="text-gray-400 text-sm max-w-sm mx-auto">Islam, Quran aur Hadith ke mutaliq koi bhi sawal poochein.</p>
               </div>
-            ))}
-          </div>
-          <motion.div 
-            whileHover={{ scale: 1.02 }}
-            className="bg-[#D4AF37] rounded-[2.5rem] md:rounded-[3rem] p-10 text-[#1a2e2a] relative overflow-hidden shadow-2xl cursor-pointer flex flex-col justify-between"
-            onClick={() => router.push('/quran/18')}
-          >
-            <div className="space-y-4 relative z-10">
-              <Clock size={40} className="mb-4 opacity-40" />
-              <p className="text-[10px] font-black uppercase tracking-[0.2em]">Recently Read</p>
-              <h2 className="text-4xl font-serif font-bold italic">Surah Al-Kahf</h2>
-              <p className="bg-[#1a2e2a]/10 px-4 py-1.5 rounded-full w-fit text-[10px] font-black uppercase">Juz 15 • Ayah 1</p>
-            </div>
-            <button className="mt-8 bg-[#1a2e2a] text-white w-full py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em]">
-              Resume Reading <Play size={12} className="inline ml-2" fill="currentColor" />
-            </button>
-          </motion.div>
-        </div>
-
-        {/* --- SURAH BROWSER (FULL RESPONSIVE) --- */}
-        <div className="space-y-8 pt-10 border-t border-gray-100">
-          <div className="flex flex-col xl:flex-row justify-between items-center gap-6">
-            <div className="relative group w-full max-w-md">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#D4AF37]" size={20} />
-              <input 
-                type="text" 
-                placeholder="Search Surah name or number..." 
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-16 pr-8 py-5 bg-white border border-gray-100 rounded-3xl md:rounded-[2rem] outline-none focus:ring-8 focus:ring-[#D4AF37]/5 font-bold text-sm shadow-sm"
-              />
-            </div>
-            <div className="flex gap-2 p-1.5 bg-gray-100/50 rounded-[2rem] overflow-x-auto no-scrollbar max-w-full">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 md:px-8 py-3.5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-                    activeTab === tab.id ? 'bg-[#1a2e2a] text-[#D4AF37] shadow-xl' : 'text-gray-400 hover:text-[#1a2e2a]'
-                  }`}
-                >
-                  {tab.icon} {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <div className="flex justify-center py-24">
-                <Loader2 className="animate-spin text-[#D4AF37]" size={50} />
-              </div>
-            ) : (
-              <motion.div 
-                key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                // Responsive Grid: 1 col on mobile, 2 on medium+
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
-              >
-                {activeTab === 'surah' && filteredSurahs.map((surah: any) => (
-                  <motion.div 
-                    key={surah.number} 
-                    whileHover={{ scale: 1.02, x: 8 }}
-                    onClick={() => router.push(`/quran/${surah.number}`)}
-                    className="group bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-gray-50 hover:border-[#D4AF37]/30 hover:shadow-xl transition-all cursor-pointer flex items-center justify-between relative overflow-hidden"
-                  >
-                    <div className="flex items-center gap-4 md:gap-6 relative z-10">
-                      <div className="w-12 h-12 md:w-14 md:h-14 bg-[#fdfcf8] group-hover:bg-[#1a2e2a] group-hover:text-[#D4AF37] rounded-2xl flex items-center justify-center text-xs font-black transition-all">
-                        {surah.number}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="font-serif font-black text-xl md:text-2xl text-[#1a2e2a] group-hover:text-[#D4AF37] transition-colors truncate">{surah.englishName}</h4>
-                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mt-1">
-                          {surah.revelationType} • {surah.numberOfAyahs} Verses
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-3xl md:text-5xl font-serif font-bold text-[#1a2e2a]/5 group-hover:text-[#1a2e2a]/10 transition-all absolute -right-2 bottom-2 md:bottom-4" dir="rtl">
-                      {surah.name.split(' ').pop()}
-                    </div>
-                  </motion.div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full px-4">
+                {["Quran mein Sabr ka zikr?", "Zakat nikalne ka tariqa?", "Tahajjud ki fazilat", "Aaj ki achi baat"].map((text, idx) => (
+                  <button key={`suggest-${idx}`} onClick={() => handleSearch(text)} className="p-4 bg-white border border-gray-100 rounded-2xl text-left text-xs font-bold text-gray-500 hover:border-sirat-gold hover:text-sirat-gold transition-all shadow-sm flex items-center justify-between group">
+                    {text} <Plus size={14} className="opacity-0 group-hover:opacity-100" />
+                  </button>
                 ))}
+              </div>
+            </div>
+          )}
 
-                {activeTab === 'para' && (
-                  <div className="col-span-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {Array.from({ length: 30 }, (_, i) => (
-                      <motion.div 
-                        key={i}
-                        whileHover={{ scale: 1.05, backgroundColor: '#1a2e2a', color: '#D4AF37' }}
-                        className="bg-white border border-gray-100 p-8 rounded-[2rem] text-center cursor-pointer transition-all shadow-sm"
-                      >
-                        <p className="text-[10px] font-black uppercase opacity-40">Juz</p>
-                        <h4 className="text-3xl font-serif font-black">{i + 1}</h4>
-                      </motion.div>
-                    ))}
+          {currentSession?.messages?.map((msg, i) => (
+            <div 
+              key={`msg-${i}`} 
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500`}
+            >
+              {msg.role === 'ai' && (
+                 <div className="w-8 h-8 rounded-lg bg-sirat-gold shrink-0 flex items-center justify-center shadow-md">
+                   <Sparkles size={16} className="text-sirat-dark" />
+                 </div>
+              )}
+
+              <div className={`max-w-[85%] md:max-w-[70%] p-5 md:p-7 shadow-lg transition-all relative group ${
+                msg.role === 'user' 
+                ? 'bg-sirat-dark text-white rounded-[2rem] rounded-tr-none border-b-4 border-sirat-gold/30' 
+                : 'bg-white border border-gray-100 rounded-[2rem] rounded-tl-none text-sirat-dark'
+              }`}>
+                <div className="prose prose-stone prose-p:leading-relaxed prose-strong:text-sirat-gold max-w-none break-words">
+                  {msg.role === 'ai' ? renderFormattedMessage(msg.content) : <ReactMarkdown>{msg.content}</ReactMarkdown>}
+                </div>
+
+                {msg.role === 'ai' && (
+                  <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 gap-2 flex-wrap">
+                    <div className="flex gap-2">
+                      <button onClick={() => copyToClipboard(msg.content)} className="flex items-center gap-2 text-[10px] font-bold text-sirat-gold border border-sirat-gold/20 px-3 py-1.5 rounded-full hover:bg-sirat-gold/10 transition-all">
+                        <Copy size={12} /> Copy
+                      </button>
+                      <button onClick={() => speak(msg.content)} className={`flex items-center gap-2 text-[10px] font-bold border px-3 py-1.5 rounded-full transition-all ${isSpeaking ? 'bg-red-50 text-red-500 border-red-200 animate-pulse' : 'text-sirat-gold border-sirat-gold/20 hover:bg-sirat-gold/10'}`}>
+                         <Volume2 size={12} /> {isSpeaking ? "Stop" : "Listen"}
+                      </button>
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest opacity-20 italic">Sirat Verified</span>
                   </div>
                 )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* --- SIDE LEGACY PANEL --- */}
-      <AnimatePresence>
-        {selectedHero && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-end">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setSelectedHero(null)}
-              className="absolute inset-0 bg-[#1a2e2a]/80 backdrop-blur-md px-4"
-            />
-            <motion.div 
-              initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-xl h-full bg-[#fdfcf8] shadow-2xl p-8 md:p-16 overflow-y-auto"
-            >
-              <button onClick={() => setSelectedHero(null)} className="absolute top-10 right-10 p-3 hover:bg-gray-100 rounded-full transition-all"><X size={24} /></button>
-              <div className="space-y-10">
-                <div className="space-y-4">
-                  <div className="p-5 bg-[#1a2e2a] w-fit rounded-3xl text-[#D4AF37]">{selectedHero.icon}</div>
-                  <h2 className="text-5xl md:text-6xl font-serif font-black italic text-[#1a2e2a] leading-tight">{selectedHero.name}</h2>
-                  <p className="text-[#D4AF37] font-black text-xs uppercase tracking-[0.4em]">{selectedHero.title}</p>
-                </div>
-                <div className="p-8 bg-white rounded-[2.5rem] border border-gray-100 space-y-4 shadow-sm">
-                  <h5 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Core Contribution</h5>
-                  <p className="text-xl font-serif italic font-bold text-[#1a2e2a]">{selectedHero.legacy}</p>
-                </div>
-                <div className="space-y-6">
-                   <h5 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#D4AF37]"><Book size={14} /> Full Narrative</h5>
-                   <p className="text-gray-600 leading-relaxed text-lg font-medium">{selectedHero.fullStory}</p>
-                </div>
-                <div className="p-10 bg-[#1a2e2a] rounded-[2.5rem] text-[#D4AF37] relative overflow-hidden">
-                   <h5 className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2">Quranic Intersection</h5>
-                   <p className="text-2xl font-serif italic font-bold">{selectedHero.quranConnect}</p>
-                </div>
-                <button 
-                  onClick={() => router.push(`/chat?q=Tell me more about the legacy of ${selectedHero.name}`)}
-                  className="w-full py-6 bg-[#D4AF37] text-[#1a2e2a] rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-[#1a2e2a] hover:text-[#D4AF37] transition-all"
-                >
-                  Explore Legacy via Sirat AI
-                </button>
               </div>
-            </motion.div>
+            </div>
+          ))}
+            
+          {isLoading && (
+            <div className="flex gap-4 items-start animate-pulse">
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Loader2 size={16} className="animate-spin text-gray-400"/>
+              </div>
+              <div className="bg-gray-50 border border-dashed border-gray-200 p-6 rounded-[2rem] rounded-tl-none w-[65%]">
+                 <div className="h-2 bg-gray-200 rounded w-3/4 mb-3"></div>
+                 <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          )}
+          <div ref={scrollRef} className="h-4" />
+        </main>
+
+        {/* Chat Input Footer Area */}
+        <footer className="p-4 md:p-8 bg-gradient-to-t from-[#fdfcf8] via-[#fdfcf8] to-transparent z-20 pb-8">
+          <div className="max-w-4xl mx-auto relative group flex items-center">
+            <input 
+              type="text" 
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch(query)}
+              placeholder="Ask a question by speaking or writing....."
+              className="w-full py-5 px-6 pr-32 rounded-[2rem] border border-gray-200 focus:ring-8 focus:ring-sirat-gold/5 outline-none shadow-2xl transition-all text-sm md:text-base"
+            />
+
+            <div className="absolute right-3 flex items-center gap-2">
+              <button 
+                onClick={startListening}
+                className={`p-2.5 rounded-full transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:bg-gray-100'}`}
+              >
+                <Mic size={22} />
+              </button>
+              <button 
+                onClick={() => handleSearch(query)} 
+                disabled={isLoading || !query.trim()}
+                className="bg-sirat-dark p-3 rounded-full text-white hover:bg-sirat-gold active:bg-sirat-gold transition-all shadow-lg disabled:bg-gray-200"
+              >
+                <Send size={20} />
+              </button>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+          <p className="text-[10px] text-center mt-4 text-gray-400 font-medium">
+            &copy; 2026 Dawah Siraat. Knowledge is based on established Islamic Texts.
+          </p>
+        </footer>
+      </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="h-screen flex items-center justify-center font-black uppercase tracking-widest text-sirat-dark opacity-20">Sirat AI Loading...</div>}>
+      <ChatContent />
+    </Suspense>
   );
 }

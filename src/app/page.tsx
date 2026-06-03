@@ -2,16 +2,18 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation'; 
-import { motion } from 'framer-motion';
+// FIXED IMPORT STRUCTURE
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Send, BookOpen, Scroll, Book, Library, 
-  Play, Home, Sparkles, ArrowUpRight, Heart, Globe, User, X, Menu
+  Play, Home, Sparkles, ArrowUpRight, Heart, Globe, User, X, Menu,
+  Youtube, Facebook, Twitter, Instagram, ChevronRight, Mail, Phone, MapPin
 } from 'lucide-react';
 
 // --- 1. MONTHLY DONATION BANNER COMPONENT ---
 function DonationBanner() {
   const [isVisible, setIsVisible] = useState(true);
-const router = useRouter();
+  const router = useRouter();
   if (!isVisible) return null;
 
   return (
@@ -50,7 +52,7 @@ const router = useRouter();
         </div>
 
         {/* Subtle Background Sparkle */}
-        <div className="absolute -left-10 -bottom-10 opacity-10 rotate-12">
+        <div className="absolute -left-10 -bottom-10 opacity-10 rotate-12 pointer-events-none">
           <Sparkles size={240} />
         </div>
       </div>
@@ -61,7 +63,8 @@ const router = useRouter();
 // 2. MAIN LANDING PAGE
 export default function SiratLandingPage() {
   const [query, setQuery] = useState("");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
+  const [subscriberEmail, setSubscriberEmail] = useState("");
   const router = useRouter();
 
   const handleSearch = () => {
@@ -69,15 +72,21 @@ export default function SiratLandingPage() {
     router.push(`/chat?q=${encodeURIComponent(query)}`);
   };
 
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subscriberEmail.trim()) return;
+    alert("JazakAllahu Khair! Subscription successful.");
+    setSubscriberEmail("");
+  };
+
   return (
-    <div className="min-h-screen bg-[#fdfcf8] font-sans selection:bg-[#D4AF37] selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#fdfcf8] font-sans selection:bg-[#D4AF37] selection:text-white overflow-x-hidden flex flex-col justify-between">
       
-      {/* 1. NAVBAR - Responsive Version */}
-      <nav className="bg-[#1a2e2a]/95 backdrop-blur-md text-white px-4 md:px-12 py-5 flex items-center justify-between sticky top-0 z-50 border-b border-white/5 shadow-2xl">
+      {/* ================= FIXED STICKY NAVIGATION BAR WITH Z-INDEX FIX ================= */}
+      <nav className="bg-[#1a2e2a]/95 backdrop-blur-md text-white px-4 md:px-12 py-5 flex items-center justify-between sticky top-0 z-[100] border-b border-white/5 shadow-xl transition-all duration-300">
         
-        {/* Left: Mobile Menu + Logo */}
+        {/* Left: Mobile Menu Trigger + Logo Stack */}
         <div className="flex items-center gap-3">
-          {/* MOBILE MENU ICON - Sirf Mobile par nazar aye ga */}
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
             className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition"
@@ -100,13 +109,13 @@ export default function SiratLandingPage() {
           </motion.div>
         </div>
         
-        {/* Center: Desktop Links (Hidden on Mobile) */}
+        {/* Center: Links Layout */}
         <div className="hidden lg:flex items-center gap-12 text-[11px] font-black uppercase tracking-[0.3em] opacity-70">
           <a href="/quran" className="hover:text-[#D4AF37] transition-all">Al-Quran</a>
           <a href="/hadith" className="hover:text-[#D4AF37] transition-all">Hadith</a>
         </div>
 
-        {/* Right: Actions */}
+        {/* Right Actions */}
         <div className="flex items-center gap-2 md:gap-4">
           <button 
             onClick={() => router.push('/dashboard')} 
@@ -121,82 +130,79 @@ export default function SiratLandingPage() {
             className="bg-[#D4AF37] text-[#1a2e2a] px-5 md:px-8 py-2 md:py-3 rounded-full font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg"
           >
             <span className="sm:hidden">Support</span>
-  <span className="hidden sm:inline">Support Mission</span>
+            <span className="hidden sm:inline">Support Mission</span>
           </button> 
-
         </div>
       </nav>
 
-      {/* MOBILE OVERLAY MENU - Premium Colors Update */}
-{isMobileMenuOpen && (
-  <motion.div 
-    initial={{ x: '-100%', opacity: 0 }}
-    animate={{ x: 0, opacity: 1 }}
-    exit={{ x: '-100%', opacity: 0 }}
-    className="fixed inset-0 bg-[#1a2e2a] z-[100] p-8 flex flex-col lg:hidden"
-  >
-    {/* Header inside Menu */}
-    <div className="flex justify-between items-center mb-16">
-      <div className="flex items-center gap-2">
-        <div className="bg-[#D4AF37] p-1.5 rounded-lg">
-          <Sparkles size={18} className="text-[#1a2e2a]" />
-        </div>
-        <span className="text-2xl font-black italic tracking-tighter text-white">
-          SIRAT<span className="text-[#D4AF37]">.AI</span>
-        </span>
-      </div>
-      <button 
-        onClick={() => setIsMobileMenuOpen(false)} 
-        className="p-3 bg-white/5 border border-white/10 rounded-full active:scale-90 transition-all"
-      >
-        <X size={28} className="text-[#D4AF37]" />
-      </button>
-    </div>
-    
-    {/* Navigation Links */}
-    <div className="flex flex-col gap-6">
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2">Sirat</p>
-      
-      <a href="/quran" className="flex justify-between items-center group">
-        <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Al-Quran</span>
-        <ArrowUpRight className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
-      </a>
-      
-      <div className="h-[1px] w-full bg-white/5" />
+      {/* MOBILE OVERLAY DRAWER PANEL */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ x: '-100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '-100%', opacity: 0 }}
+            transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
+            className="fixed inset-0 bg-[#1a2e2a] z-[200] p-8 flex flex-col lg:hidden h-screen"
+          >
+            <div className="flex justify-between items-center mb-16">
+              <div className="flex items-center gap-2">
+                <div className="bg-[#D4AF37] p-1.5 rounded-lg">
+                  <Sparkles size={18} className="text-[#1a2e2a]" />
+                </div>
+                <span className="text-2xl font-black italic tracking-tighter text-white">
+                  SIRAT<span className="text-[#D4AF37]">.AI</span>
+                </span>
+              </div>
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="p-3 bg-white/5 border border-white/10 rounded-full active:scale-90 transition-all"
+              >
+                <X size={28} className="text-[#D4AF37]" />
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2">Sirat Platform</p>
+              
+              <a href="/quran" className="flex justify-between items-center group">
+                <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Al-Quran</span>
+                <ArrowUpRight className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
+              </a>
+              
+              <div className="h-[1px] w-full bg-white/5" />
 
-      <a href="/hadith" className="flex justify-between items-center group">
-        <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Hadith</span>
-        <ArrowUpRight className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
-      </a>
+              <a href="/hadith" className="flex justify-between items-center group">
+                <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Hadith</span>
+                <ArrowUpRight className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
+              </a>
 
-      <div className="h-[1px] w-full bg-white/5" />
+              <div className="h-[1px] w-full bg-white/5" />
 
-      <a href="/chat" className="flex justify-between items-center group">
-        <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Dashboard</span>
-        <User className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
-      </a>
-    </div>
+              <a href="/chat" className="flex justify-between items-center group">
+                <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Dashboard</span>
+                <User className="text-[#D4AF37] opacity-50 group-hover:opacity-100" size={24} />
+              </a>
+            </div>
 
-    {/* Bottom Call to Action */}
-    <div className="mt-auto">
-      <button 
-        onClick={() => router.push('/support')}
-        className="w-full bg-[#D4AF37] text-[#1a2e2a] py-6 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all"
-      >
-        <Heart size={20} className="fill-[#1a2e2a]" />
-        Support Mission
-      </button>
-      <p className="text-center text-white/30 text-[10px] font-bold uppercase tracking-widest mt-6">
-        © 2026 Sirat AI · Authentic Wisdom
-      </p>
-    </div>
-  </motion.div>
-)}
-
-      {/* ... baqi aapka Hero Section, Banner, etc. as it is rahein ga */}
+            <div className="mt-auto">
+              <button 
+                onClick={() => { setIsMobileMenuOpen(false); router.push('/support'); }}
+                className="w-full bg-[#D4AF37] text-[#1a2e2a] py-6 rounded-[2rem] font-black text-sm uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(212,175,55,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all"
+              >
+                <Heart size={20} className="fill-[#1a2e2a]" />
+                Support Mission
+              </button>
+              <p className="text-center text-white/30 text-[10px] font-bold uppercase tracking-widest mt-6">
+                &copy; 2026 Sirat AI · Authentic Wisdom
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-32 pb-24 px-4 text-center">
+      <section className="relative pt-32 pb-24 px-4 text-center flex-1">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-[radial-gradient(circle_at_center,_#D4AF3715_0%,_transparent_70%)] -z-10" />
 
         <motion.div 
@@ -221,8 +227,8 @@ export default function SiratLandingPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Sawal poochein..."
-              className="relative w-full py-8 px-12 pr-24 rounded-full border-none outline-none focus:ring-8 focus:ring-[#D4AF37]/5 text-gray-800 bg-white text-xl shadow-[0_40px_100px_rgba(0,0,0,0.07)] transition-all placeholder:text-gray-300"
+              placeholder="Ask a question about Islam..."
+              className="relative w-full py-8 px-12 pr-24 rounded-full border-none outline-none focus:ring-8 focus:ring-[#D4AF37]/5 text-gray-800 bg-white text-base md:text-xl shadow-[0_40px_100px_rgba(0,0,0,0.07)] transition-all placeholder:text-gray-300"
             />
             <button 
               onClick={handleSearch}
@@ -250,15 +256,15 @@ export default function SiratLandingPage() {
         <span className="flex items-center gap-2">
           <Sparkles size={16} /> EMERGENCY FUNDRAISING: 7 DAYS REMAINING
         </span>
-        <div className="flex gap-4 bg-[#1a2e2a] text-[#D4AF37] px-4 py-1 rounded-full">
+        <div className="flex gap-4 bg-[#1a2e2a] text-[#D4AF37] px-4 py-1 rounded-full font-mono text-[11px]">
           <span>06d : 23h : 45m</span>
         </div>
-        <button onClick={() => router.push('/support')} className="underline hover:scale-105 transition-transform">
+        <button onClick={() => router.push('/support')} className="underline font-bold hover:scale-105 transition-transform">
           BECOME A FOUNDING SUPPORTER →
         </button>
       </motion.div>
 
-      {/* --- ADDING THE MONTHLY DONATION BANNER HERE --- */}
+      {/* MONTHLY DONATION BANNER */}
       <DonationBanner />
 
       {/* 4. DAWAH SECTION */}
@@ -267,14 +273,14 @@ export default function SiratLandingPage() {
           <div className="space-y-8">
             <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">The Digital Minbar</p>
             <h2 className="text-5xl md:text-7xl font-serif font-bold leading-tight">Dawat-e-Sirat <br/> on YouTube</h2>
-            <button className="bg-[#D4AF37] text-[#1a2e2a] px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl">
+            <button className="bg-[#D4AF37] text-[#1a2e2a] px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-white hover:text-[#1a2e2a] transition-all">
               Visit Dawah Siraat
             </button>
           </div>
           <div className="relative aspect-video bg-black rounded-[3rem] overflow-hidden shadow-2xl">
              <img src="https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000" className="w-full h-full object-cover opacity-40" alt="Dawah" />
              <div className="absolute inset-0 flex items-center justify-center">
-               <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20 transition-transform cursor-pointer">
+               <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20 transition-transform cursor-pointer hover:scale-110 duration-300">
                  <Play size={32} className="fill-white ml-2" />
                </div>
              </div>
@@ -282,14 +288,11 @@ export default function SiratLandingPage() {
         </div>
       </section>
 
-      {/* 5. MISSION PROGRESS - Premium Updated Version */}
+      {/* 5. MISSION PROGRESS */}
       <section className="bg-[#1a2e2a] py-24 px-6 relative overflow-hidden">
-        {/* Subtle Background Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#D4AF37]/5 blur-[120px] rounded-full -z-10" />
 
         <div className="max-w-5xl mx-auto bg-[#fdfcf8] rounded-[4rem] p-10 md:p-20 text-[#1a2e2a] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden group">
-            
-            {/* Mission Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
               <div className="space-y-2">
                 <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px]">Financial Transparency</p>
@@ -303,7 +306,6 @@ export default function SiratLandingPage() {
               </button>
             </div>
 
-            {/* Progress Bar Area */}
             <div className="space-y-6 mb-16">
                <div className="flex justify-between items-end">
                   <div className="space-y-1">
@@ -316,7 +318,6 @@ export default function SiratLandingPage() {
                   </div>
                </div>
                
-               {/* Animated Progress Bar */}
                <div className="h-5 bg-gray-100 rounded-full overflow-hidden p-1.5 border border-gray-50 shadow-inner relative">
                   <motion.div 
                     initial={{ width: 0 }}
@@ -324,13 +325,11 @@ export default function SiratLandingPage() {
                     transition={{ duration: 2.5, ease: "circOut" }}
                     className="h-full bg-gradient-to-r from-[#1a2e2a] to-[#D4AF37] rounded-full relative"
                   >
-                    {/* Shimmer Effect */}
-                    <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] skew-x-12" />
+                    <div className="absolute inset-0 bg-white/20 animate-pulse" />
                   </motion.div>
                </div>
             </div>
 
-            {/* Simple Breakdown Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-gray-100">
                <div className="space-y-1">
                   <p className="text-2xl font-serif font-bold italic">$22.5k</p>
@@ -346,57 +345,162 @@ export default function SiratLandingPage() {
                </div>
             </div>
 
-            {/* Decorative Icon */}
             <div className="absolute -right-10 -bottom-10 opacity-[0.03] rotate-12 pointer-events-none">
               <Sparkles size={300} />
             </div>
         </div>
       </section>
 
-      {/* 6. GLOBAL IMPACT (Pulse of Ummah) - Premium Updated Version */}
-<section className="py-32 bg-[#fdfcf8] relative overflow-hidden">
-  {/* Background Subtle Elements */}
-  <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')] opacity-[0.03] pointer-events-none" />
-  
-  <div className="max-w-7xl mx-auto px-6 relative z-10">
-    <div className="text-center max-w-3xl mx-auto mb-20">
-      <motion.p 
-        initial={{ opacity: 0 }} 
-        whileInView={{ opacity: 1 }}
-        className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] mb-4"
-      >
-        The Pulse of Ummah
-      </motion.p>
-      <h2 className="text-4xl md:text-7xl font-serif font-black text-[#1a2e2a] leading-tight tracking-tighter">
-        Seeking Guidance <br /> Across the <span className="italic text-[#D4AF37] drop-shadow-sm">Ummah.</span>
-      </h2>
-    </div>
+      {/* 6. GLOBAL IMPACT */}
+      <section className="py-32 bg-[#fdfcf8] relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')] opacity-[0.03] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <motion.p 
+              initial={{ opacity: 0 }} 
+              whileInView={{ opacity: 1 }}
+              className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] mb-4"
+            >
+              The Pulse of Ummah
+            </motion.p>
+            <h2 className="text-4xl md:text-7xl font-serif font-black text-[#1a2e2a] leading-tight tracking-tighter">
+              Seeking Guidance <br /> Across the <span className="italic text-[#D4AF37] drop-shadow-sm">Ummah.</span>
+            </h2>
+          </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-      <ImpactCard 
-        icon="🌙" 
-        title="Family Laws" 
-        count="12,400+" 
-        description="Nikah, Divorce & Inheritance guidance based on Sharia."
-        glowColor="rgba(212,175,55,0.2)"
-      />
-      <ImpactCard 
-        icon="⚖️" 
-        title="Zakat & Finance" 
-        count="8,200+" 
-        description="Halal Investment and Zakat calculations verified."
-        glowColor="rgba(26,46,42,0.1)"
-      />
-      <ImpactCard 
-        icon="✨" 
-        title="Sunnah Ethics" 
-        count="25,900+" 
-        description="Daily Adab and Akhlaq from authentic Sahih Hadith."
-        glowColor="rgba(212,175,55,0.2)"
-      />
-    </div>
-  </div>
-</section>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <ImpactCard 
+              icon="🌙" 
+              title="Family Laws" 
+              count="12,400+" 
+              description="Nikah, Divorce & Inheritance guidance based on Sharia."
+              glowColor="rgba(212,175,55,0.2)"
+            />
+            <ImpactCard 
+              icon="⚖️" 
+              title="Zakat & Finance" 
+              count="8,200+" 
+              description="Halal Investment and Zakat calculations verified."
+              glowColor="rgba(26,46,42,0.1)"
+            />
+            <ImpactCard 
+              icon="✨" 
+              title="Sunnah Ethics" 
+              count="25,900+" 
+              description="Daily Adab and Akhlaq from authentic Sahih Hadith."
+              glowColor="rgba(212,175,55,0.2)"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* ======================= PREMIUM CORE DAWAH FOOTER ======================= */}
+      {/* ========================================================================= */}
+      <footer className="bg-[#142320] text-white pt-24 pb-12 border-t border-white/5 relative overflow-hidden shrink-0">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')] opacity-[0.02] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 relative z-10 pb-16 border-b border-white/5">
+          
+          {/* Column 1: Brand & Identity */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+              <div className="bg-[#D4AF37] p-2 rounded-xl">
+                <Sparkles size={18} className="text-[#1a2e2a]" />
+              </div>
+              <span className="text-2xl font-black tracking-tighter uppercase italic">
+                Sirat<span className="text-[#D4AF37]">.ai</span>
+              </span>
+            </div>
+            <p className="text-white/60 text-xs leading-relaxed font-medium">
+              Siraat AI is dedicated to providing instant, verified knowledge on Al-Quran and Sahih Hadith, powered by secure scalable technology frameworks for the global Muslim community.
+            </p>
+            <div className="flex items-center gap-3 pt-2">
+              {[
+                { icon: <Youtube size={16} />, link: "https://youtube.com" },
+                { icon: <Twitter size={16} />, link: "https://twitter.com" },
+                { icon: <Instagram size={16} />, link: "https://instagram.com" },
+                { icon: <Facebook size={16} />, link: "https://facebook.com" }
+              ].map((social, idx) => (
+                <a 
+                  key={idx} 
+                  href={social.link} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-[#D4AF37] hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all duration-300"
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Column 2: Platform Links */}
+          <div className="space-y-6">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Knowledge Center</h4>
+            <ul className="space-y-3 text-xs font-bold uppercase tracking-widest text-white/60">
+              <li><a href="/quran" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> Al-Quran Index</a></li>
+              <li><a href="/hadith" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> Hadith Texts</a></li>
+              <li><a href="/chat" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> Ask Siraat Bot</a></li>
+              <li><a href="/dashboard" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> User Dashboard</a></li>
+            </ul>
+          </div>
+
+          {/* Column 3: Contact Details */}
+          <div className="space-y-6">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Contact Registry</h4>
+            <ul className="space-y-4 text-xs font-medium text-white/70">
+              <li className="flex items-start gap-3">
+                <MapPin size={16} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                <span>Lahore Startup Workspace, Punjab, Pakistan</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail size={16} className="text-[#D4AF37] shrink-0" />
+                <a href="mailto:support@sirat.ai" className="hover:underline hover:text-white transition-colors">support@sirat.ai</a>
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone size={16} className="text-[#D4AF37] shrink-0" />
+                <span>+92 (42) 111-SIRAT</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: Newsletter Segment */}
+          <div className="space-y-6">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Newsletter Feed</h4>
+            <p className="text-white/60 text-xs leading-relaxed font-medium">
+              Subscribe to receive weekly authentic insights, updates on development iterations, and community highlights.
+            </p>
+            <form onSubmit={handleSubscribe} className="relative flex items-center">
+              <input 
+                type="email" 
+                required
+                value={subscriberEmail}
+                onChange={(e) => setSubscriberEmail(e.target.value)}
+                placeholder="Enter email address"
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-4 pr-12 text-xs font-medium focus:outline-none focus:border-[#D4AF37] text-white transition-all placeholder:text-white/20"
+              />
+              <button 
+                type="submit"
+                className="absolute right-2 p-2 bg-[#D4AF37] text-[#1a2e2a] rounded-lg hover:brightness-110 active:scale-95 transition-all"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Legal and Copyright area block */}
+        <div className="max-w-7xl mx-auto px-6 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-white/30">
+          <p>&copy; 2026 Dawah Siraat. All rights reserved across international modules.</p>
+          <div className="flex gap-6">
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+          </div>
+        </div>
+      </footer>
+
     </div>
   );
 }
@@ -415,7 +519,6 @@ function ResourceCard({ icon, title }: { icon: React.ReactNode, title: string })
   );
 }
 
-// --- UPDATED IMPACT CARD COMPONENT ---
 function ImpactCard({ icon, title, count, description, glowColor }: any) {
   return (
     <motion.div 
@@ -423,7 +526,6 @@ function ImpactCard({ icon, title, count, description, glowColor }: any) {
       transition={{ type: "spring", stiffness: 300 }}
       className="relative p-10 rounded-[3.5rem] bg-white border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] group cursor-default overflow-hidden"
     >
-      {/* Hover Glow Effect */}
       <div 
         className="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl -z-10"
         style={{ backgroundColor: glowColor }}

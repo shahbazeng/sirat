@@ -1,5 +1,8 @@
 "use client";
-import { SessionProvider } from "next-auth/react";
+import React from "react";
+// import { SessionProvider } from "next-auth/react"; // Temporary comment out
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  // Direct children return karein bina kisi provider dynamic lifecycle ke
+  return <>{children}</>;
 }

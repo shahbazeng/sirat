@@ -1,0 +1,18 @@
+{
+  "" : {
+    "diagnostics" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM-master.dia",
+    "emit-module-dependencies" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM-master-emit-module.dia",
+    "swift-dependencies" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM-master.swiftdeps"
+  },
+  "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/App/CapApp-SPM/Sources/CapApp-SPM/CapApp-SPM.swift" : {
+    "const-values" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM.swiftconstvalues",
+    "dependencies" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM.d",
+    "diagnostics" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM.dia",
+    "index-unit-output-path" : "/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM.o",
+    "llvm-bc" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM.bc",
+    "object" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM.o",
+    "swift-dependencies" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM.swiftdeps",
+    "swiftmodule" : "/Users/shahbazali/Desktop/sirat/sirat-ai/ios/buildOut/Build/Intermediates.noindex/CapApp-SPM.build/Debug-iphoneos/CapApp-SPM.build/Objects-normal/arm64/CapApp-SPM~partial.swiftmodule"
+  }
+}
