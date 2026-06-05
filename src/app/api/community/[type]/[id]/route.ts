@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 
 export async function DELETE(
   req: Request, 
-  { params }: { params: { type: string, id: string } }
+  context: { params: Promise<{ type: string, id: string }> } // params ko Promise bana diya
 ) {
   try {
-    const { type, id } = params;
+    // params ko await karna zaroori hai
+    const { type, id } = await context.params;
     
-    // Yahan type 'posts' match hona chahiye
     if (type === 'posts') {
       await prisma.post.delete({ where: { id } });
     } else if (type === 'threads') {
@@ -20,6 +20,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error("Delete Error:", e);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 }
