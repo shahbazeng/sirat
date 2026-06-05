@@ -15,7 +15,18 @@ model User {
   password  String?
   image     String?
   createdAt DateTime @default(now())
-  chats     Chat[]
+
+  // Core & Social Relations
+  chats       Chat[]
+  posts       Post[]
+  comments    Comment[]
+  reactions   Reaction[]
+  userStreaks UserStreak[]
+  threads     Thread[] // Reverse relation for Thread
+
+  // Event Relations
+  organizedEvents Event[] @relation("Organizer")
+  attendingEvents Event[] @relation("EventAttendees")
 }
 
 model Chat {
@@ -25,4 +36,112 @@ model Chat {
   userId    String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ==================== SIRAT SANCTUARY: SOCIAL SYSTEM MODELS ====================
+
+model Post {
+  id        String   @id @default(uuid())
+  content   String
+  image     String?
+  createdAt DateTime @default(now())
+
+  // --- Relationships (Yeh add karo) ---
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  communityId String?
+  community   Community? @relation(fields: [communityId], references: [id])
+
+  comments  Comment[]
+  reactions Reaction[]
+}
+
+model Community {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  posts       Post[] // Opposite relation
+}
+
+model Thread {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum ReactionType {
+  SUBHANALLAH
+  JAZAKALLAH
+  ALHAMDULILLAH
+  MASHALLAH
+}
+
+model Reaction {
+  id        String       @id @default(cuid())
+  type      ReactionType
+  createdAt DateTime     @default(now())
+  postId    String
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model Mission {
+  id          String       @id @default(cuid())
+  title       String
+  description String       @db.Text
+  points      Int          @default(10)
+  isGlobal    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  userStreaks UserStreak[]
+}
+
+model UserStreak {
+  id          String   @id @default(cuid())
+  currentDate DateTime @default(now())
+  completed   Boolean  @default(false)
+  count       Int      @default(0)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  missionId   String
+  mission     Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, missionId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  location    String
+  organizerId String
+  organizer   User     @relation("Organizer", fields: [organizerId], references: [id])
+  attendees   User[]   @relation("EventAttendees")
+  createdAt   DateTime @default(now())
+}
+
+model Discussion {
+  id        String   @id @default(uuid())
+  content   String
+  userName  String
+  createdAt DateTime @default(now())
 }
