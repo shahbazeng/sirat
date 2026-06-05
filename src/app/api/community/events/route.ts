@@ -30,13 +30,14 @@ export async function PUT(req: Request) {
     if (!user) return NextResponse.json({ error: "User profile not found" }, { status: 404 });
 
     const event = await prisma.event.create({
-      data: { 
-        title, 
-        location: "Private Call", 
-        date: new Date(), 
-        organizerId: user.id 
-      }
-    });
+  data: { 
+    title, 
+    location: "Private Call", 
+    date: new Date(), 
+    organizerId: "some-id", // Apni sahi ID yahan dain
+    description: "Meeting scheduled via Sirat Ai", // <--- Yeh line add karain
+  },
+});
     return NextResponse.json(event);
   } catch (error) {
     return NextResponse.json({ error: "Creation failed" }, { status: 500 });
