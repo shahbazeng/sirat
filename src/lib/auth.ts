@@ -17,7 +17,6 @@ export const authOptions = {
           throw new Error("Invalid Credentials");
         }
 
-        // 1. Database se user find karein (lowercase email validation ke sath)
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase().trim() }
         });
@@ -26,14 +25,12 @@ export const authOptions = {
           throw new Error("User not found");
         }
 
-        // 2. Encrypted Password Match karein
         const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
 
         if (!isPasswordCorrect) {
           throw new Error("Incorrect Password");
         }
 
-        // 3. Agar sab sahi hai to user profile object return karein
         return {
           id: user.id,
           name: user.name,
@@ -42,8 +39,23 @@ export const authOptions = {
       }
     })
   ],
+  // Yahan callbacks add karna zaroori hai taake session mein ID mil sake
+  callbacks: {
+    async jwt({ token, user }: { token: any, user?: any }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }: { session: any, token: any }) {
+      if (session.user) {
+        session.user.id = token.id; // Yahan ID ko session mein attach kiya
+      }
+      return session;
+    }
+  },
   pages: {
-    signIn: '/login', // custom login page target
+    signIn: '/login',
   },
   session: {
     strategy: "jwt" as const,

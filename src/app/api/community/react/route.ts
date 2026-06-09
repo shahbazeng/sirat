@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders });
     }
 
-    const { postId, type } = await req.json(); // type: SUBHANALLAH, JAZAKALLAH, etc.
+    const { postId, type } = await req.json();
 
     if (!postId || !type) {
       return NextResponse.json({ error: "Invalid reaction payload parameter matrix" }, { status: 400, headers: corsHeaders });
@@ -36,7 +36,6 @@ export async function POST(req: Request) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } });
     if (!user) return NextResponse.json({ error: "User missing" }, { status: 404, headers: corsHeaders });
 
-    // Check if the user already reacted to this specific post
     const existingReaction = await prisma.reaction.findUnique({
       where: {
         postId_userId: { postId, userId: user.id }
@@ -44,12 +43,11 @@ export async function POST(req: Request) {
     });
 
     if (existingReaction) {
-      // If same reaction clicked again -> Delete it (Toggle off)
       if (existingReaction.type === type) {
         await prisma.reaction.delete({ where: { id: existingReaction.id } });
-        return NextResponse.json({ action: "REMOVED", targetId: id }, { headers: corsHeaders });
+        // FIXED: 'id' ki jagah 'postId' use kiya gaya hai
+        return NextResponse.json({ action: "REMOVED", targetId: postId }, { headers: corsHeaders });
       } else {
-        // If different reaction clicked -> Update type
         const updatedReaction = await prisma.reaction.update({
           where: { id: existingReaction.id },
           data: { type: type as ReactionType }
@@ -58,7 +56,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // Pure Fresh entry register
     const newReaction = await prisma.reaction.create({
       data: {
         type: type as ReactionType,
@@ -72,9 +69,4 @@ export async function POST(req: Request) {
     console.error("COMMUNITY REACTION ERROR:", error.message);
     return NextResponse.json({ error: "Reaction handling execution error: " + error.message }, { status: 500, headers: corsHeaders });
   }
-} 
-
-
-
-
-
+}
