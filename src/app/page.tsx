@@ -267,10 +267,29 @@ useEffect(() => {
     </div>
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
-  <ResourceCard icon={<BookOpen size={28}/>} title="Al-Quran" link="/quran" />
-  <ResourceCard icon={<Scroll size={28}/>} title="Hadith" link="/hadith" />
-  <ResourceCard icon={<Book size={28}/>} title="Fiqh" link="/fiqh" />
-  <ResourceCard icon={<Library size={28}/>} title="Siraat" link="/chat" /> 
+  {/* Al-Quran: Deep Emerald/Teal tint */}
+  <ResourceCard 
+    icon={<BookOpen size={28}/>} title="Al-Quran" link="/quran" 
+    bgColor="bg-emerald-50" textColor="text-emerald-900" 
+  />
+  
+  {/* Hadith: Soft Amber/Gold tint */}
+  <ResourceCard 
+    icon={<Scroll size={28}/>} title="Hadith" link="/hadith" 
+    bgColor="bg-amber-50" textColor="text-amber-900" 
+  />
+  
+  {/* Fiqh: Muted Blue/Slate tint */}
+  <ResourceCard 
+    icon={<Book size={28}/>} title="Fiqh" link="/fiqh" 
+    bgColor="bg-sky-50" textColor="text-sky-900" 
+  />
+  
+  {/* Siraat: Warm Rose/Sand tint */}
+  <ResourceCard 
+    icon={<Library size={28}/>} title="Siraat" link="/chat" 
+    bgColor="bg-orange-50" textColor="text-orange-900" 
+  /> 
 </div>
   </motion.div>
 </section>
@@ -625,17 +644,23 @@ useEffect(() => {
 
 // --- HELPER COMPONENTS ---
 
-function ResourceCard({ icon, title, link }: { icon: React.ReactNode, title: string, link: string }) {
+function ResourceCard({ icon, title, link, bgColor, textColor }: { 
+  icon: React.ReactNode, 
+  title: string, 
+  link: string,
+  bgColor: string,   // e.g., "bg-emerald-50"
+  textColor: string  // e.g., "text-emerald-900"
+}) {
   return (
-    <Link href={link} className="block"> {/* Pura card link ban gaya */}
+    <Link href={link} className="block">
       <motion.div 
-        whileHover={{ y: -10 }}
-        className="bg-white p-8 rounded-[2.5rem] flex flex-col items-center gap-4 transition-all shadow-sm hover:shadow-2xl border border-gray-50 group cursor-pointer"
+        whileHover={{ y: -8 }}
+        className={`${bgColor} p-8 rounded-[2.5rem] flex flex-col items-center gap-4 transition-all shadow-sm hover:shadow-xl border border-transparent hover:border-black/5 group cursor-pointer`}
       >
-        <div className="text-[#1a2e2a] group-hover:text-[#D4AF37] transition-colors duration-500">
+        <div className={`${textColor} opacity-80 group-hover:scale-110 transition-transform duration-500`}>
           {icon}
         </div>
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a2e2a]">
+        <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] ${textColor}`}>
           {title}
         </h3>
       </motion.div>
