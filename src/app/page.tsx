@@ -563,40 +563,58 @@ useEffect(() => {
           </div>
         </div>
       </footer>
-{/* Welcome Modal ko yahan footer ke baad aur main div ke closing tag se pehle rakhein */}
+{/* Welcome Modal */}
 <AnimatePresence>
   {showWelcome && (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bubble-container">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Background Dim */}
       <motion.div 
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={() => setShowWelcome(false)}
-        className="absolute inset-0 bg-[#0a1a15]/90 backdrop-blur-md" 
+        className="absolute inset-0 bg-[#0a1a15]/95 backdrop-blur-xl bubble-bg" 
       />
 
       {/* Main Card */}
       <motion.div 
-        initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        className="relative bg-gradient-to-br from-[#1a2e2a] to-[#0a1a15] p-10 md:p-16 rounded-[4rem] w-full max-w-xl text-center border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden"
+        initial={{ scale: 0.9, opacity: 0 }} 
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative bg-[#0d1f1b] p-10 md:p-16 rounded-[4rem] w-full max-w-lg text-center border border-[#D4AF37]/30 shadow-[0_0_80px_rgba(212,175,55,0.2)] overflow-hidden"
       >
-        <div className="bubble w-20 h-20 top-10 left-10" />
-        <div className="bubble w-32 h-32 bottom-10 right-10" />
+        {/* Colorful Floating Bubbles */}
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{ 
+              y: [0, -30, 0], 
+              x: [0, i % 2 === 0 ? 20 : -20, 0] 
+            }}
+            transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut" }}
+            className={`absolute w-${20 + i * 5} h-${20 + i * 5} rounded-full bg-gradient-to-r ${i % 2 === 0 ? 'from-[#D4AF37]/20 to-transparent' : 'from-emerald-500/20 to-transparent'} blur-xl`}
+            style={{ 
+              top: `${Math.random() * 80}%`, 
+              left: `${Math.random() * 80}%` 
+            }}
+          />
+        ))}
 
-        <h2 className="text-5xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-b from-[#D4AF37] to-[#8d7626] mb-6">
-          Assalamu Alaikum, Momin!
-        </h2>
-        
-        <p className="text-emerald-100/80 leading-relaxed mb-10 text-lg italic">
-          "نُّورٌ عَلَىٰ نُورٍ" <br/>
-          Welcome to Sirat.ai — your digital companion for authentic Islamic wisdom.
-        </p>
+        <div className="relative z-10">
+          <h2 className="text-4xl md:text-5xl font-serif font-black text-white mb-6">
+            Assalamu Alaikum, Momin!
+          </h2>
+          
+          <p className="text-emerald-100/80 leading-relaxed mb-10 text-lg italic">
+            Welcome to <span className="text-[#D4AF37] font-bold">Siratai.com</span> — <br/>
+            A digital sanctuary for authentic Islamic wisdom.
+          </p>
 
-        <button 
-          onClick={() => { setShowWelcome(false); router.push('/dashboard'); }}
-          className="group relative w-full bg-[#D4AF37] text-[#0a1a15] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:scale-105 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
-        >
-          Begin Your Journey
-        </button>
+          <button 
+            onClick={() => { setShowWelcome(false); router.push('/dashboard'); }}
+            className="group relative w-full bg-[#D4AF37] text-[#0a1a15] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:scale-[1.02] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.3)]"
+          >
+            Enter Siratai Portal
+          </button>
+        </div>
       </motion.div>
     </div>
   )}
