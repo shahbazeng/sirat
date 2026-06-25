@@ -10,7 +10,7 @@ import {
   Youtube, Facebook, Twitter, Instagram, ChevronRight, Mail, Phone, MapPin
 } from 'lucide-react';
 
-
+import Link from 'next/link';
 
 
 
@@ -267,11 +267,11 @@ useEffect(() => {
     </div>
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
-      <ResourceCard icon={<BookOpen size={28}/>} title="Al-Quran" />
-      <ResourceCard icon={<Scroll size={28}/>} title="Hadith" />
-      <ResourceCard icon={<Book size={28}/>} title="Fiqh" />
-      <ResourceCard icon={<Library size={28}/>} title="Siraat" />
-    </div>
+  <ResourceCard icon={<BookOpen size={28}/>} title="Al-Quran" link="/quran" />
+  <ResourceCard icon={<Scroll size={28}/>} title="Hadith" link="/hadith" />
+  <ResourceCard icon={<Book size={28}/>} title="Fiqh" link="/fiqh" />
+  <ResourceCard icon={<Library size={28}/>} title="Siraat" link="/chat" /> 
+</div>
   </motion.div>
 </section>
 
@@ -625,15 +625,21 @@ useEffect(() => {
 
 // --- HELPER COMPONENTS ---
 
-function ResourceCard({ icon, title }: { icon: React.ReactNode, title: string }) {
+function ResourceCard({ icon, title, link }: { icon: React.ReactNode, title: string, link: string }) {
   return (
-    <motion.div 
-      whileHover={{ y: -10 }}
-      className="bg-white p-8 rounded-[2.5rem] flex flex-col items-center gap-4 transition-all shadow-sm hover:shadow-2xl border border-gray-50 group cursor-pointer"
-    >
-      <div className="text-[#1a2e2a] group-hover:text-[#D4AF37] transition-colors duration-500">{icon}</div>
-      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a2e2a]">{title}</h3>
-    </motion.div>
+    <Link href={link} className="block"> {/* Pura card link ban gaya */}
+      <motion.div 
+        whileHover={{ y: -10 }}
+        className="bg-white p-8 rounded-[2.5rem] flex flex-col items-center gap-4 transition-all shadow-sm hover:shadow-2xl border border-gray-50 group cursor-pointer"
+      >
+        <div className="text-[#1a2e2a] group-hover:text-[#D4AF37] transition-colors duration-500">
+          {icon}
+        </div>
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1a2e2a]">
+          {title}
+        </h3>
+      </motion.div>
+    </Link>
   );
 }
 
