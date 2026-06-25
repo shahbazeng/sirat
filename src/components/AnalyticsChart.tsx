@@ -29,17 +29,4 @@ export default function AnalyticsChart() {
       </ResponsiveContainer>
     </div>
   );
-} 
-
-export default function AnalyticsDashboard({ stats, trends = [], engagement = [], trafficSources = [] }) {
-  // Stats ko safe initialize karein
-  const s = stats || { totalQueries: "0", avgLatency: 0, activeUsers: "0", uptime: 0 };
-
-  return (
-    <div className="space-y-8">
-      {/* ... code */}
-      <Metric className="text-2xl font-black">{s.totalQueries}</Metric>
-      {/* ... code */}
-    </div>
-  );
 }
