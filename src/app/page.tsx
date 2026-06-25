@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // <--- useEffect yahan add karein
 import { useRouter } from 'next/navigation'; 
 // FIXED IMPORT STRUCTURE
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,12 @@ import {
   Play, Home, Sparkles, ArrowUpRight, Heart, Globe, User, X, Menu,
   Youtube, Facebook, Twitter, Instagram, ChevronRight, Mail, Phone, MapPin
 } from 'lucide-react';
+
+
+
+
+
+
 
 // --- 1. MONTHLY DONATION BANNER COMPONENT ---
 function DonationBanner() {
@@ -66,6 +72,16 @@ export default function SiratLandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
   const [subscriberEmail, setSubscriberEmail] = useState("");
   const router = useRouter();
+  const [showWelcome, setShowWelcome] = useState(false);
+
+useEffect(() => {
+  // Check if user has visited before
+  const hasVisited = localStorage.getItem("hasVisitedSirat");
+  if (!hasVisited) {
+    setShowWelcome(true);
+    localStorage.setItem("hasVisitedSirat", "true"); // Mark as visited
+  }
+}, []);
 
   const handleSearch = () => {
     if (!query.trim()) return;
@@ -547,7 +563,45 @@ export default function SiratLandingPage() {
           </div>
         </div>
       </footer>
+<AnimatePresence>
+  {showWelcome && (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bubble-container">
+      {/* Background Dim */}
+      <motion.div 
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={() => setShowWelcome(false)}
+        className="absolute inset-0 bg-[#0a1a15]/90 backdrop-blur-md" 
+      />
 
+      {/* Main Card */}
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        className="relative bg-gradient-to-br from-[#1a2e2a] to-[#0a1a15] p-10 md:p-16 rounded-[4rem] w-full max-w-xl text-center border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden"
+      >
+        {/* Floating Bubbles Decoration */}
+        <div className="bubble w-20 h-20 top-10 left-10" />
+        <div className="bubble w-32 h-32 bottom-10 right-10" />
+
+        <h2 className="text-5xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-b from-[#D4AF37] to-[#8d7626] mb-6">
+          Assalamu Alaikum, Momin!
+        </h2>
+        
+        <p className="text-emerald-100/80 leading-relaxed mb-10 text-lg italic">
+          "نُّورٌ عَلَىٰ نُورٍ" <br/>
+          Welcome to Sirat.ai — your digital companion for authentic Islamic wisdom, 
+          where technology meets the purity of faith.
+        </p>
+
+        <button 
+          onClick={() => { setShowWelcome(false); router.push('/dashboard'); }}
+          className="group relative w-full bg-[#D4AF37] text-[#0a1a15] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:scale-105 transition-all shadow-[0_10px_20px_rgba(212,175,55,0.2)]"
+        >
+          Begin Your Journey
+        </button>
+      </motion.div>
+    </div>
+  )}
+</AnimatePresence>
     </div>
   );
 }
@@ -602,6 +656,7 @@ function ImpactCard({ icon, title, count, description, glowColor }: any) {
             <ArrowUpRight size={20} />
           </div>
         </div>
+        
       </div>
     </motion.div>
   );

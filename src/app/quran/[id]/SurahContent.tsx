@@ -196,130 +196,45 @@ useEffect(() => {
     <div className={`min-h-screen transition-colors duration-500 ${isDarkMode ? 'bg-[#0f1715] text-white' : 'bg-[#fdfcf8] text-[#1a2e2a]'}`}>
       
       {/* Header */}
-     <nav className={`sticky top-0 z-50 flex items-center justify-between px-6 py-4 border-b backdrop-blur-2xl transition-all duration-300 ${
-
-  isDarkMode 
-
-    ? 'bg-[#0f1715]/90 border-white/10 text-white' 
-
-    : 'bg-white/90 border-gray-100 text-gray-900'
-
+    <nav className={`sticky top-0 z-50 flex flex-wrap items-center justify-between px-4 py-3 border-b backdrop-blur-2xl transition-all duration-300 ${
+  isDarkMode ? 'bg-[#0f1715]/90 border-white/10 text-white' : 'bg-white/90 border-gray-100 text-gray-900'
 }`}>
 
-  
-
   {/* Left: Action Bar */}
-
-  <div className="flex items-center gap-2">
-
-    <button onClick={() => router.back()} className="p-3 hover:bg-emerald-500/10 rounded-2xl transition-all active:scale-95 text-emerald-600">
-
-      <ArrowLeft size={22} strokeWidth={2.5} />
-
+  <div className="flex items-center gap-1">
+    <button onClick={() => router.back()} className="p-2 hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-600">
+      <ArrowLeft size={20} />
     </button>
-
-    <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-3 hover:bg-emerald-500/10 rounded-2xl transition-all active:scale-95 text-emerald-600">
-
-      {isDarkMode ? <Sun size={22} strokeWidth={2.5}/> : <Moon size={22} strokeWidth={2.5}/>}
-
+    <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 hover:bg-emerald-500/10 rounded-xl transition-all text-emerald-600">
+      {isDarkMode ? <Sun size={20}/> : <Moon size={20}/>}
     </button>
-
   </div>
 
-
-
-  {/* Center: Surah Navigation - Fixed Centering */}
-
-  <div className="flex items-center gap-4 bg-emerald-500/5 px-6 py-2 rounded-2xl border border-emerald-500/10">
-
-    <button 
-
-      onClick={() => navigateSurah(-1)} 
-
-      disabled={parseInt(id) <= 1}
-
-      className="p-2 text-emerald-600 hover:bg-emerald-500/10 rounded-full disabled:opacity-20 transition-all active:scale-90"
-
-    >
-
-      <SkipBack size={20} strokeWidth={3} />
-
-    </button>
-
-    
-
-    {/* Fixed Text Block */}
-
-    <div className="flex flex-col items-center justify-center min-w-[120px]">
-
-      <span className="text-[8px] font-black uppercase tracking-[0.2em] text-emerald-500 leading-none">Surah</span>
-
-      <span className="text-sm font-bold text-gray-900 truncate mt-0.5 leading-none">
-
-        {surahData?.number}. {surahData?.englishName}
-
-      </span>
-
+  {/* Center: Surah Navigation (Mobile par font chota kar diya) */}
+  <div className="flex items-center gap-2 bg-emerald-500/5 px-3 py-1.5 rounded-xl border border-emerald-500/10">
+    <button onClick={() => navigateSurah(-1)} disabled={parseInt(id) <= 1} className="p-1.5 text-emerald-600 disabled:opacity-20"><SkipBack size={16} /></button>
+    <div className="flex flex-col items-center justify-center min-w-[80px]">
+      <span className="text-[7px] font-black uppercase text-emerald-500 leading-none">Surah</span>
+      <span className="text-[10px] font-bold truncate leading-none">{surahData?.englishName}</span>
     </div>
-
-    
-
-    <button 
-
-      onClick={() => navigateSurah(1)} 
-
-      disabled={parseInt(id) >= 114}
-
-      className="p-2 text-emerald-600 hover:bg-emerald-500/10 rounded-full disabled:opacity-20 transition-all active:scale-90"
-
-    >
-
-      <SkipForward size={20} strokeWidth={3} />
-
-    </button>
-
+    <button onClick={() => navigateSurah(1)} disabled={parseInt(id) >= 114} className="p-1.5 text-emerald-600 disabled:opacity-20"><SkipForward size={16} /></button>
   </div>
 
-
-
-  {/* Right: Mode Switcher */}
-
-  <div className="flex bg-gray-100/80 p-1.5 rounded-2xl">
-
+  {/* Right: Mode Switcher (Mobile par text hidden, sirf icons) */}
+  <div className="flex bg-gray-100/80 p-1 rounded-xl">
     <button 
-
       onClick={() => setActiveMode('read')} 
-
-      className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
-
-        activeMode === 'read' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-400 hover:text-emerald-600'
-
-      }`}
-
+      className={`p-2 rounded-lg transition-all ${activeMode === 'read' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-400'}`}
     >
-
-      <Book size={16} strokeWidth={2.5}/> Read
-
+      <Book size={18}/>
     </button>
-
     <button 
-
       onClick={() => setActiveMode('recite')} 
-
-      className={`px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
-
-        activeMode === 'recite' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-400 hover:text-emerald-600'
-
-      }`}
-
+      className={`p-2 rounded-lg transition-all ${activeMode === 'recite' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-400'}`}
     >
-
-      <Headphones size={16} strokeWidth={2.5}/> Recite
-
+      <Headphones size={18}/>
     </button>
-
   </div>
-
 </nav>
       {/* Main Container */}
       <div className="max-w-5xl mx-auto p-6 md:p-12 pb-40">
