@@ -15,7 +15,7 @@ model User {
   password  String?
   image     String?
   createdAt DateTime @default(now())
-
+  role String @default("USER")
   // Core & Social Relations
   chats       Chat[]
   posts       Post[]
@@ -143,5 +143,26 @@ model Discussion {
   id        String   @id @default(uuid())
   content   String
   userName  String
+  createdAt DateTime @default(now())
+}
+model UserLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String   // e.g., "SEARCHED_QURAN", "LOGIN", "DONATED"
+  details   String?
+  createdAt DateTime @default(now())
+} 
+
+
+model PageView {
+  id        String   @id @default(uuid())
+  path      String   // Page ka naam
+  ipAddress String?  // User ka IP (Analytics ke liye)
+  userAgent String?  // Mobile/Desktop tracking
+  createdAt DateTime @default(now())
+} 
+model Query {
+  id        String   @id @default(uuid())
+  content   String
   createdAt DateTime @default(now())
 }

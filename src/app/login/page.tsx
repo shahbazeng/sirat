@@ -19,22 +19,21 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // FIXED: Fake local tracking block remove karke actual NextAuth configuration framework apply kiya hai
       const response = await signIn("credentials", {
         email: email.toLowerCase().trim(),
         password: password,
-        redirect: false,
+        redirect: false, // Redirect hum middleware se handle karenge
       });
 
       if (response?.error) {
         alert("Authentication Fault: Email ya Password durust nahi hai.");
       } else {
-        localStorage.setItem("user_logged_in", "true");
-        router.push("/dashboard");
-        router.refresh();
+        // Redirect hatakar refresh karein taake middleware role check kar sake
+        router.push("/"); 
+        router.refresh(); 
       }
     } catch (err) {
-      console.error("Login Interface Trigger Error:", err);
+      console.error("Login Error:", err);
       alert("Network server pipe connectivity failure.");
     } finally {
       setLoading(false);

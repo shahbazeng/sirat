@@ -35,21 +35,21 @@ export const authOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
+          role: (user as any).role, // Role return karna zaroori hai
         };
       }
     })
   ],
-  // Yahan callbacks add karna zaroori hai taake session mein ID mil sake
   callbacks: {
-    async jwt({ token, user }: { token: any, user?: any }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.role = (user as any).role;
       }
       return token;
     },
-    async session({ session, token }: { session: any, token: any }) {
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id; // Yahan ID ko session mein attach kiya
+        (session.user as any).role = token.role;
       }
       return session;
     }

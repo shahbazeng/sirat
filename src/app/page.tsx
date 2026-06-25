@@ -202,50 +202,62 @@ export default function SiratLandingPage() {
       </AnimatePresence>
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-32 pb-24 px-4 text-center flex-1">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-[radial-gradient(circle_at_center,_#D4AF3715_0%,_transparent_70%)] -z-10" />
+<section className="relative pt-32 pb-24 px-4 text-center flex-1 overflow-hidden">
+  {/* Video Background */}
+  <video 
+    autoPlay 
+    loop 
+    muted 
+    playsInline 
+    className="absolute inset-0 w-full h-full object-cover -z-20"
+  >
+    <source src="/hero-bg.mp4" type="video/mp4" />
+  </video>
+  
+  {/* Dark Overlay for text readability */}
+  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] -z-10" />
 
-        <motion.div 
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto"
-        >
-          <div className="inline-flex items-center gap-2 bg-white px-5 py-2 rounded-full shadow-xl mb-10 border border-gray-50">
-            <Sparkles size={16} className="text-[#D4AF37] animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1a2e2a]/60 font-mono">2026 AI Engine Active</span>
-          </div>
+  <motion.div 
+    initial={{ y: 30, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.8 }}
+    className="max-w-4xl mx-auto"
+  >
+    <div className="inline-flex items-center gap-2 bg-white/80 px-5 py-2 rounded-full shadow-xl mb-10 border border-gray-100">
+      <Sparkles size={16} className="text-[#D4AF37] animate-pulse" />
+      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1a2e2a]/60 font-mono">2026 AI Engine Active</span>
+    </div>
 
-          <h1 className="text-6xl md:text-8xl font-serif text-[#1a2e2a] mb-12 leading-[0.95] font-black tracking-tighter">
-            Authentic Wisdom. <br />
-            <span className="italic text-[#D4AF37] font-medium serif underline decoration-[#1a2e2a]/5">Divine Light.</span>
-          </h1>
+    <h1 className="text-6xl md:text-8xl font-serif text-[#1a2e2a] mb-12 leading-[0.95] font-black tracking-tighter">
+      Authentic Wisdom. <br />
+      <span className="italic text-[#D4AF37] font-medium serif underline decoration-[#1a2e2a]/5">Divine Light.</span>
+    </h1>
 
-          <div className="relative max-w-3xl mx-auto mb-20 group">
-            <input 
-              type="text" 
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Ask a question about Islam..."
-              className="relative w-full py-8 px-12 pr-24 rounded-full border-none outline-none focus:ring-8 focus:ring-[#D4AF37]/5 text-gray-800 bg-white text-base md:text-xl shadow-[0_40px_100px_rgba(0,0,0,0.07)] transition-all placeholder:text-gray-300"
-            />
-            <button 
-              onClick={handleSearch}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-[#1a2e2a] hover:bg-[#D4AF37] text-white hover:text-[#1a2e2a] p-5 rounded-full shadow-2xl transition-all active:scale-90"
-            >
-              <Send size={24} />
-            </button>
-          </div>
+    <div className="relative max-w-3xl mx-auto mb-20 group">
+      <input 
+        type="text" 
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        placeholder="Ask a question about Islam..."
+        className="relative w-full py-8 px-12 pr-24 rounded-full border-none outline-none focus:ring-8 focus:ring-[#D4AF37]/5 text-gray-800 bg-white/90 backdrop-blur-md text-base md:text-xl shadow-[0_40px_100px_rgba(0,0,0,0.07)] transition-all placeholder:text-gray-400"
+      />
+      <button 
+        onClick={handleSearch}
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-[#1a2e2a] hover:bg-[#D4AF37] text-white hover:text-[#1a2e2a] p-5 rounded-full shadow-2xl transition-all active:scale-90"
+      >
+        <Send size={24} />
+      </button>
+    </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
-            <ResourceCard icon={<BookOpen size={28}/>} title="Al-Quran" />
-            <ResourceCard icon={<Scroll size={28}/>} title="Hadith" />
-            <ResourceCard icon={<Book size={28}/>} title="Fiqh" />
-            <ResourceCard icon={<Library size={28}/>} title="Siraat" />
-          </div>
-        </motion.div>
-      </section>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
+      <ResourceCard icon={<BookOpen size={28}/>} title="Al-Quran" />
+      <ResourceCard icon={<Scroll size={28}/>} title="Hadith" />
+      <ResourceCard icon={<Book size={28}/>} title="Fiqh" />
+      <ResourceCard icon={<Library size={28}/>} title="Siraat" />
+    </div>
+  </motion.div>
+</section>
 
       {/* 3. 7-DAY CHALLENGE BANNER */}
       <motion.div 
@@ -267,26 +279,61 @@ export default function SiratLandingPage() {
       {/* MONTHLY DONATION BANNER */}
       <DonationBanner />
 
-      {/* 4. DAWAH SECTION */}
-      <section className="bg-[#1a2e2a] text-white py-32 px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
-          <div className="space-y-8">
-            <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">The Digital Minbar</p>
-            <h2 className="text-5xl md:text-7xl font-serif font-bold leading-tight">Dawat-e-Sirat <br/> on YouTube</h2>
-            <button className="bg-[#D4AF37] text-[#1a2e2a] px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-white hover:text-[#1a2e2a] transition-all">
-              Visit Dawah Siraat
-            </button>
-          </div>
-          <div className="relative aspect-video bg-black rounded-[3rem] overflow-hidden shadow-2xl">
-             <img src="https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000" className="w-full h-full object-cover opacity-40" alt="Dawah" />
-             <div className="absolute inset-0 flex items-center justify-center">
-               <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20 transition-transform cursor-pointer hover:scale-110 duration-300">
-                 <Play size={32} className="fill-white ml-2" />
-               </div>
-             </div>
-          </div>
-        </div>
-      </section>
+      {/* 4. DAWAH SECTION - PRO VERSION */}
+<section className="bg-[#1a2e2a] text-white py-32 px-6 overflow-hidden">
+  <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+    
+    <div className="space-y-8">
+      <div className="flex items-center gap-4">
+        <span className="w-12 h-[2px] bg-[#D4AF37]"></span>
+        <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs">The Digital Minbar</p>
+      </div>
+      <h2 className="text-5xl md:text-7xl font-serif font-bold leading-tight">
+        Dawat-e-Sirat <br/> 
+        <span className="text-emerald-400">on YouTube</span>
+      </h2>
+      <p className="text-emerald-100/70 text-lg max-w-md leading-relaxed">
+        Join our community of seekers. Watch thought-provoking episodes, Tafsir sessions, and heart-softening reminders.
+      </p>
+      
+      <div className="flex gap-4 pt-4">
+        <a 
+          href="https://www.youtube.com/@DawahSirat" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="bg-[#D4AF37] text-[#1a2e2a] px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:bg-white transition-all flex items-center gap-3"
+        >
+          <Play size={16} className="fill-[#1a2e2a]" /> Visit Dawah Siraat
+        </a>
+      </div>
+    </div>
+
+    {/* Interactive Preview Card */}
+    <motion.div 
+      whileHover={{ y: -10 }}
+      className="relative aspect-video bg-black rounded-[3rem] overflow-hidden shadow-2xl shadow-emerald-900/50 border border-white/10"
+    >
+       <img 
+         src="https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000" 
+         className="w-full h-full object-cover opacity-50 hover:opacity-70 transition-opacity duration-500" 
+         alt="Dawah Sirat" 
+       />
+       <a 
+         href="https://www.youtube.com/@DawahSirat" 
+         target="_blank" 
+         className="absolute inset-0 flex items-center justify-center group"
+       >
+         <div className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/20 transition-all group-hover:bg-[#D4AF37] group-hover:border-transparent">
+           <Play size={32} className="fill-white ml-2 group-hover:fill-[#1a2e2a]" />
+         </div>
+       </a>
+       {/* YouTube Badge */}
+       <div className="absolute top-8 left-8 bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+         Subscribe
+       </div>
+    </motion.div>
+  </div>
+</section>
 
       {/* 5. MISSION PROGRESS */}
       <section className="bg-[#1a2e2a] py-24 px-6 relative overflow-hidden">
@@ -418,7 +465,7 @@ export default function SiratLandingPage() {
             </p>
             <div className="flex items-center gap-3 pt-2">
               {[
-                { icon: <Youtube size={16} />, link: "https://youtube.com" },
+                { icon: <Youtube size={16} />, link: "https://www.youtube.com/@DawahSirat" },
                 { icon: <Twitter size={16} />, link: "https://twitter.com" },
                 { icon: <Instagram size={16} />, link: "https://instagram.com" },
                 { icon: <Facebook size={16} />, link: "https://facebook.com" }
