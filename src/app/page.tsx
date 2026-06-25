@@ -563,6 +563,7 @@ useEffect(() => {
           </div>
         </div>
       </footer>
+{/* Welcome Modal ko yahan footer ke baad aur main div ke closing tag se pehle rakhein */}
 <AnimatePresence>
   {showWelcome && (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bubble-container">
@@ -578,7 +579,6 @@ useEffect(() => {
         initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
         className="relative bg-gradient-to-br from-[#1a2e2a] to-[#0a1a15] p-10 md:p-16 rounded-[4rem] w-full max-w-xl text-center border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] overflow-hidden"
       >
-        {/* Floating Bubbles Decoration */}
         <div className="bubble w-20 h-20 top-10 left-10" />
         <div className="bubble w-32 h-32 bottom-10 right-10" />
 
@@ -588,8 +588,7 @@ useEffect(() => {
         
         <p className="text-emerald-100/80 leading-relaxed mb-10 text-lg italic">
           "نُّورٌ عَلَىٰ نُورٍ" <br/>
-          Welcome to Sirat.ai — your digital companion for authentic Islamic wisdom, 
-          where technology meets the purity of faith.
+          Welcome to Sirat.ai — your digital companion for authentic Islamic wisdom.
         </p>
 
         <button 
