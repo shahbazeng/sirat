@@ -24,7 +24,7 @@ import {
   EyeOff, 
   SkipBack, 
   Bookmark, 
-  share2
+  Share2
 
 } from 'lucide-react';
 // Ye file ke end mein ho
