@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import Tracker from "@/components/Tracker"; // Hook import nahi karna, sirf component!
+import Tracker from "@/components/Tracker"; 
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
@@ -15,6 +15,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics Script */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-YE4SMQJ61D"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-YE4SMQJ61D');
+            `,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} ${playfair.variable} antialiased`}>
         <Providers>
           <Tracker /> 
