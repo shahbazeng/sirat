@@ -215,80 +215,67 @@ useEffect(() => {
         )}
       </AnimatePresence>
 
-      {/* 2. HERO SECTION */}
-<section className="relative pt-32 pb-24 px-4 text-center flex-1 overflow-hidden">
-  {/* Video Background */}
+     {/* 2. HERO SECTION - FIXED LAYERS */}
+<section className="relative min-h-[90vh] flex flex-col justify-center items-center py-20 px-4 overflow-hidden">
+  
+  {/* Layer 1: Video (Background) */}
   <video 
     autoPlay 
     loop 
     muted 
     playsInline 
-    className="absolute inset-0 w-full h-full object-cover -z-20"
+    className="absolute inset-0 w-full h-full object-cover z-0"
   >
     <source src="/hero-bg.mp4" type="video/mp4" />
   </video>
   
-  {/* Dark Overlay for text readability */}
-  <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] -z-10" />
+  {/* Layer 2: Overlay (Text Readability) */}
+  <div className="absolute inset-0 bg-[#FDFCF8]/70 backdrop-blur-[2px] z-10" />
 
+  {/* Layer 3: Content (Foreground) */}
   <motion.div 
     initial={{ y: 30, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.8 }}
-    className="max-w-4xl mx-auto"
+    className="relative z-20 w-full max-w-4xl text-center"
   >
-    <div className="inline-flex items-center gap-2 bg-white/80 px-5 py-2 rounded-full shadow-xl mb-10 border border-gray-100">
-      <Sparkles size={16} className="text-[#D4AF37] animate-pulse" />
-      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1a2e2a]/60 font-mono">2026 AI Engine Active</span>
+    {/* Status Badge */}
+    <div className="inline-flex items-center gap-2 bg-white/50 backdrop-blur-md px-5 py-2 rounded-full shadow-sm mb-10 border border-white/50">
+      <Sparkles size={16} className="text-[#D4AF37]" />
+      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1a2e2a]/70">2026 AI Wisdom Engine</span>
     </div>
 
-    <h1 className="text-6xl md:text-8xl font-serif text-[#1a2e2a] mb-12 leading-[0.95] font-black tracking-tighter">
-      Authentic Wisdom. <br />
-      <span className="italic text-[#D4AF37] font-medium serif underline decoration-[#1a2e2a]/5">Divine Light.</span>
+    {/* Main Headline */}
+    <h1 className="text-5xl md:text-8xl font-serif text-[#1a2e2a] mb-12 leading-[0.9] font-black tracking-tighter">
+      Authentic Wisdom.<br /> 
+      <span className="italic text-[#D4AF37]">Divine Light.</span>
     </h1>
 
-    <div className="relative max-w-3xl mx-auto mb-20 group">
+    {/* Search Box */}
+    <div className="relative max-w-2xl mx-auto mb-20 group">
       <input 
         type="text" 
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        placeholder="Ask a question about Islam..."
-        className="relative w-full py-8 px-12 pr-24 rounded-full border-none outline-none focus:ring-8 focus:ring-[#D4AF37]/5 text-gray-800 bg-white/90 backdrop-blur-md text-base md:text-xl shadow-[0_40px_100px_rgba(0,0,0,0.07)] transition-all placeholder:text-gray-400"
+        placeholder="What would you like to learn today?"
+        className="w-full py-7 px-10 rounded-[2rem] border-none outline-none focus:ring-4 focus:ring-[#D4AF37]/20 bg-white/90 shadow-2xl text-lg transition-all"
       />
       <button 
         onClick={handleSearch}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-[#1a2e2a] hover:bg-[#D4AF37] text-white hover:text-[#1a2e2a] p-5 rounded-full shadow-2xl transition-all active:scale-90"
+        className="absolute right-3 top-3 bottom-3 aspect-square bg-[#1a2e2a] text-[#D4AF37] rounded-[1.5rem] flex items-center justify-center hover:bg-black transition-all"
       >
-        <Send size={24} />
+        <Send size={20} />
       </button>
     </div>
 
-   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
-  {/* Al-Quran: Emerald Green Icon */}
-  <ResourceCard 
-    icon={<BookOpen size={28}/>} title="Al-Quran" link="/quran" 
-    iconColor="text-emerald-600" 
-  />
-  
-  {/* Hadith: Amber/Gold Icon */}
-  <ResourceCard 
-    icon={<Scroll size={28}/>} title="Hadith" link="/hadith" 
-    iconColor="text-amber-600" 
-  />
-  
-  {/* Fiqh: Sky/Slate Blue Icon */}
-  <ResourceCard 
-    icon={<Book size={28}/>} title="Fiqh" link="/fiqh" 
-    iconColor="text-sky-600" 
-  />
-  
-  {/* Siraat: Rose/Orange Icon */}
-  <ResourceCard 
-    icon={<Library size={28}/>} title="Siraat" link="/chat" 
-    iconColor="text-orange-600" 
-  /> 
-</div>
+    {/* Resources Grid */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto px-4">
+      <ResourceCard icon={<BookOpen size={24}/>} title="Al-Quran" link="/quran" iconColor="text-emerald-600" />
+      <ResourceCard icon={<Scroll size={24}/>} title="Hadith" link="/hadith" iconColor="text-amber-600" />
+      <ResourceCard icon={<Book size={24}/>} title="Fiqh" link="/fiqh" iconColor="text-sky-600" />
+      <ResourceCard icon={<Library size={24}/>} title="Siraat" link="/chat" iconColor="text-orange-600" /> 
+    </div>
   </motion.div>
 </section>
 
