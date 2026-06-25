@@ -4,14 +4,12 @@ import React, { useState, useEffect } from 'react'; // <--- useEffect yahan add 
 import { useRouter } from 'next/navigation'; 
 // FIXED IMPORT STRUCTURE
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link'; // <--- YE LINE YAHAN ZAROOR HONI CHAHIYE
 import { 
   Send, BookOpen, Scroll, Book, Library, 
   Play, Home, Sparkles, ArrowUpRight, Heart, Globe, User, X, Menu,
   Youtube, Facebook, Twitter, Instagram, ChevronRight, Mail, Phone, MapPin
 } from 'lucide-react';
-
-import Link from 'next/link';
-
 
 
 
@@ -266,50 +264,56 @@ useEffect(() => {
       </button>
     </div>
 
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
-  {/* Al-Quran: Deep Emerald/Teal tint */}
+   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto px-4">
+  {/* Al-Quran: Emerald Green Icon */}
   <ResourceCard 
     icon={<BookOpen size={28}/>} title="Al-Quran" link="/quran" 
-    bgColor="bg-emerald-50" textColor="text-emerald-900" 
+    iconColor="text-emerald-600" 
   />
   
-  {/* Hadith: Soft Amber/Gold tint */}
+  {/* Hadith: Amber/Gold Icon */}
   <ResourceCard 
     icon={<Scroll size={28}/>} title="Hadith" link="/hadith" 
-    bgColor="bg-amber-50" textColor="text-amber-900" 
+    iconColor="text-amber-600" 
   />
   
-  {/* Fiqh: Muted Blue/Slate tint */}
+  {/* Fiqh: Sky/Slate Blue Icon */}
   <ResourceCard 
     icon={<Book size={28}/>} title="Fiqh" link="/fiqh" 
-    bgColor="bg-sky-50" textColor="text-sky-900" 
+    iconColor="text-sky-600" 
   />
   
-  {/* Siraat: Warm Rose/Sand tint */}
+  {/* Siraat: Rose/Orange Icon */}
   <ResourceCard 
     icon={<Library size={28}/>} title="Siraat" link="/chat" 
-    bgColor="bg-orange-50" textColor="text-orange-900" 
+    iconColor="text-orange-600" 
   /> 
 </div>
   </motion.div>
 </section>
 
-      {/* 3. 7-DAY CHALLENGE BANNER */}
-      <motion.div 
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-[#D4AF37] text-[#1a2e2a] py-4 px-6 text-center font-black uppercase tracking-[0.2em] text-[12px] flex flex-col md:flex-row items-center justify-center gap-4 shadow-xl"
-      >
-        <span className="flex items-center gap-2">
-          <Sparkles size={16} /> EMERGENCY FUNDRAISING: 7 DAYS REMAINING
-        </span>
-        <div className="flex gap-4 bg-[#1a2e2a] text-[#D4AF37] px-4 py-1 rounded-full font-mono text-[11px]">
-          <span>06d : 23h : 45m</span>
-        </div>
-        <button onClick={() => router.push('/support')} className="underline font-bold hover:scale-105 transition-transform">
-          BECOME A FOUNDING SUPPORTER →
-        </button>
-      </motion.div>
+      {/* 3. 7-DAY EMERGENCY CHALLENGE BANNER */}
+<motion.div 
+  initial={{ y: -50, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  className="bg-red-600 text-white py-4 px-6 text-center font-black uppercase tracking-[0.2em] text-[12px] flex flex-col md:flex-row items-center justify-center gap-4 shadow-xl border-b-4 border-red-800"
+>
+  <span className="flex items-center gap-2">
+    <Sparkles size={16} className="text-yellow-300" /> 
+    EMERGENCY FUNDRAISING: 7 DAYS REMAINING
+  </span>
+  
+  <div className="flex gap-4 bg-white/10 text-white px-4 py-1 rounded-full font-mono text-[11px] border border-white/20">
+    <span>06d : 23h : 45m</span>
+  </div>
+  
+  <button 
+    onClick={() => router.push('/support')} 
+    className="bg-white text-red-600 px-4 py-1 rounded-full font-bold hover:bg-gray-100 transition-colors"
+  >
+    BECOME A FOUNDING SUPPORTER →
+  </button>
+</motion.div>
 
       {/* MONTHLY DONATION BANNER */}
       <DonationBanner />
@@ -433,50 +437,58 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* 6. GLOBAL IMPACT */}
-      <section className="py-32 bg-[#fdfcf8] relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')] opacity-[0.03] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <motion.p 
-              initial={{ opacity: 0 }} 
-              whileInView={{ opacity: 1 }}
-              className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px] mb-4"
-            >
-              The Pulse of Ummah
-            </motion.p>
-            <h2 className="text-4xl md:text-7xl font-serif font-black text-[#1a2e2a] leading-tight tracking-tighter">
-              Seeking Guidance <br /> Across the <span className="italic text-[#D4AF37] drop-shadow-sm">Ummah.</span>
-            </h2>
-          </div>
+      // --- MAIN SECTION ---
+<section className="py-20 px-6 bg-[#fdfcf8]">
+  <div className="max-w-6xl mx-auto">
+    <h2 className="text-3xl md:text-4xl font-serif font-black text-[#1A2E2A] text-center mb-16">
+      Seeking Guidance Across the Ummah
+    </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <ImpactCard 
-              icon="🌙" 
-              title="Family Laws" 
-              count="12,400+" 
-              description="Nikah, Divorce & Inheritance guidance based on Sharia."
-              glowColor="rgba(212,175,55,0.2)"
-            />
-            <ImpactCard 
-              icon="⚖️" 
-              title="Zakat & Finance" 
-              count="8,200+" 
-              description="Halal Investment and Zakat calculations verified."
-              glowColor="rgba(26,46,42,0.1)"
-            />
-            <ImpactCard 
-              icon="✨" 
-              title="Sunnah Ethics" 
-              count="25,900+" 
-              description="Daily Adab and Akhlaq from authentic Sahih Hadith."
-              glowColor="rgba(212,175,55,0.2)"
-            />
-          </div>
-        </div>
-      </section>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Family Laws Card */}
+      <ImpactCard 
+        icon="🌙" 
+        title="Family Laws" 
+        count="12,400+" 
+        description="Nikah, Divorce & Inheritance guidance based on Sharia."
+        theme={{ 
+          bg: "bg-[#FDF6E3]", 
+          divider: "bg-[#D4AF37]", 
+          dot: "bg-[#D4AF37]", 
+          btn: "bg-[#1A2E2A]" 
+        }}
+      />
 
+      {/* Zakat Card */}
+      <ImpactCard 
+        icon="⚖️" 
+        title="Zakat & Finance" 
+        count="8,200+" 
+        description="Halal Investment and Zakat calculations verified."
+        theme={{ 
+          bg: "bg-[#E8F5E9]", 
+          divider: "bg-[#2D5A27]", 
+          dot: "bg-[#2D5A27]", 
+          btn: "bg-[#2D5A27]" 
+        }}
+      />
+
+      {/* Sunnah Ethics Card */}
+      <ImpactCard 
+        icon="📜" 
+        title="Sunnah Ethics" 
+        count="25,900+" 
+        description="Daily Adab and Akhlaq from authentic Sahih Hadith."
+        theme={{ 
+          bg: "bg-[#FFF8E1]", 
+          divider: "bg-[#D4AF37]", 
+          dot: "bg-[#D4AF37]", 
+          btn: "bg-[#D4AF37]" 
+        }}
+      />
+    </div>
+  </div>
+</section>
       {/* ========================================================================= */}
       {/* ======================= PREMIUM CORE DAWAH FOOTER ======================= */}
       {/* ========================================================================= */}
@@ -644,23 +656,23 @@ useEffect(() => {
 
 // --- HELPER COMPONENTS ---
 
-function ResourceCard({ icon, title, link, bgColor, textColor }: { 
+function ResourceCard({ icon, title, link, iconColor }: { 
   icon: React.ReactNode, 
   title: string, 
   link: string,
-  bgColor: string,   // e.g., "bg-emerald-50"
-  textColor: string  // e.g., "text-emerald-900"
+  iconColor: string  // e.g., "text-emerald-600"
 }) {
   return (
     <Link href={link} className="block">
       <motion.div 
         whileHover={{ y: -8 }}
-        className={`${bgColor} p-8 rounded-[2.5rem] flex flex-col items-center gap-4 transition-all shadow-sm hover:shadow-xl border border-transparent hover:border-black/5 group cursor-pointer`}
+        className="bg-white p-8 rounded-[2.5rem] flex flex-col items-center gap-4 transition-all shadow-sm hover:shadow-xl border border-gray-100 group cursor-pointer"
       >
-        <div className={`${textColor} opacity-80 group-hover:scale-110 transition-transform duration-500`}>
+        {/* Icon par specific color apply ho raha hai */}
+        <div className={`${iconColor} opacity-90 group-hover:scale-110 transition-transform duration-500`}>
           {icon}
         </div>
-        <h3 className={`text-[10px] font-black uppercase tracking-[0.2em] ${textColor}`}>
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-hover:text-black transition-colors">
           {title}
         </h3>
       </motion.div>
@@ -668,43 +680,39 @@ function ResourceCard({ icon, title, link, bgColor, textColor }: {
   );
 }
 
-function ImpactCard({ icon, title, count, description, glowColor }: any) {
+function ImpactCard({ icon, title, count, description, theme }: any) {
   return (
     <motion.div 
-      whileHover={{ y: -20 }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className="relative p-10 rounded-[3.5rem] bg-white border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] group cursor-default overflow-hidden"
+      whileHover={{ y: -5 }}
+      className="bg-white p-8 rounded-[2rem] border border-[#f0f0f0] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.05)] relative group"
     >
-      <div 
-        className="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl -z-10"
-        style={{ backgroundColor: glowColor }}
-      />
-
-      <div className="relative z-10">
-        <div className="text-5xl mb-8 transform group-hover:scale-125 transition-transform duration-500 block w-fit">
+      {/* Icon Area */}
+      <div className="mb-6">
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl ${theme.bg}`}>
           {icon}
         </div>
-        
-        <h3 className="text-2xl font-black text-[#1a2e2a] mb-3 group-hover:text-[#D4AF37] transition-colors">
-          {title}
-        </h3>
-        
-        <p className="text-gray-400 text-sm leading-relaxed mb-8 opacity-0 h-0 group-hover:opacity-100 group-hover:h-auto transition-all duration-500">
-          {description}
-        </p>
+      </div>
 
-        <div className="flex items-center justify-between mt-auto border-t border-gray-50 pt-6">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-300">Total Solved</p>
-            <p className="text-2xl font-serif italic font-bold text-[#1a2e2a] group-hover:text-[#D4AF37]">
-              {count}
-            </p>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-full group-hover:bg-[#1a2e2a] group-hover:text-white transition-all">
-            <ArrowUpRight size={20} />
-          </div>
+      {/* Title & Divider */}
+      <h3 className="text-2xl font-serif font-bold text-[#1A2E2A] mb-3">{title}</h3>
+      <div className="flex items-center gap-2 mb-6">
+        <div className={`h-[2px] w-full ${theme.divider}`} />
+        <div className={`w-2 h-2 rounded-full ${theme.dot}`} />
+        <div className={`h-[2px] w-full ${theme.divider}`} />
+      </div>
+
+      {/* Stats & Description */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Solved</p>
+          <div className="text-2xl font-black text-[#1A2E2A]">{count}</div>
         </div>
-        
+        <p className="text-sm text-gray-600 leading-relaxed max-w-[120px]">{description}</p>
+      </div>
+
+      {/* Action Button */}
+      <div className={`absolute right-6 bottom-8 w-12 h-12 rounded-full flex items-center justify-center ${theme.btn} text-white shadow-lg`}>
+        <ArrowUpRight size={20} />
       </div>
     </motion.div>
   );
