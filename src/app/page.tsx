@@ -230,7 +230,7 @@ useEffect(() => {
   </video>
   
   {/* Layer 2: Overlay (Text Readability) */}
-  <div className="absolute inset-0 bg-[#FDFCF8]/70 backdrop-blur-[2px] z-10" />
+  <div className="absolute inset-0 bg-[#FDFCF8]/70 backdrop-blur-[1px] z-10" />
 
   {/* Layer 3: Content (Foreground) */}
   <motion.div 
