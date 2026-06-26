@@ -1,4 +1,8 @@
 "use client";
+
+
+// admin-client.tsx ke top par import change karein:
+import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback } from "react";
 import { signOut } from "next-auth/react";
 // ShieldAlert aur baki icons yahan import ho gaye hain
@@ -16,6 +20,10 @@ export default function AdminDashboardClient({ initialUsers, userCount }: any) {
     { id: 1, type: 'warning', msg: 'High load in Lahore node' },
     { id: 2, type: 'success', msg: 'AI Model v2.4 initialized' }
   ]);
+
+const AnalyticsDashboard = dynamic(() => import("@/components/AnalyticsDashboard"), { ssr: false });
+
+
 
   const syncData = useCallback(async () => {
     setIsRefreshing(true);
