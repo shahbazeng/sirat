@@ -1,5 +1,6 @@
 "use client";
-
+import Header from "@/components/layout/header"; // yahan 'header' lowercase karein
+import Footer from "@/components/layout/footer"; // yahan 'footer' lowercase karein
 import React, { useState, useEffect } from 'react'; // <--- useEffect yahan add karein
 import { useRouter } from 'next/navigation'; 
 // FIXED IMPORT STRUCTURE
@@ -10,7 +11,6 @@ import {
   Play, Home, Sparkles, ArrowUpRight, Heart, Globe, User, X, Menu,
   Youtube, Facebook, Twitter, Instagram, ChevronRight, Mail, Phone, MapPin
 } from 'lucide-react';
-
 
 
 
@@ -95,60 +95,9 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-[#fdfcf8] font-sans selection:bg-[#D4AF37] selection:text-white overflow-x-hidden flex flex-col justify-between">
-      
+      <Header setIsMobileMenuOpen={setIsMobileMenuOpen} />
       {/* ================= FIXED STICKY NAVIGATION BAR WITH Z-INDEX FIX ================= */}
-      <nav className="bg-[#1a2e2a]/95 backdrop-blur-md text-white px-4 md:px-12 py-5 flex items-center justify-between sticky top-0 z-[100] border-b border-white/5 shadow-xl transition-all duration-300">
-        
-        {/* Left: Mobile Menu Trigger + Logo Stack */}
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition"
-          >
-            <Menu size={24} className="text-[#D4AF37]" />
-          </button>
-
-          <motion.div 
-            initial={{ x: -20, opacity: 0 }} 
-            animate={{ x: 0, opacity: 1 }}
-            className="flex items-center gap-2 group cursor-pointer" 
-            onClick={() => router.push('/')}
-          >
-            <div className="bg-[#D4AF37] p-1.5 md:p-2 rounded-xl">
-              <Sparkles size={18} className="text-[#1a2e2a]" />
-            </div>
-            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase italic">
-              Sirat<span className="text-[#D4AF37]">.ai</span>
-            </span>
-          </motion.div>
-        </div>
-        
-        {/* Center: Links Layout */}
-        <div className="hidden lg:flex items-center gap-12 text-[11px] font-black uppercase tracking-[0.3em] opacity-70">
-          <a href="/quran" className="hover:text-[#D4AF37] transition-all">Al-Quran</a>
-          <a href="/hadith" className="hover:text-[#D4AF37] transition-all">Hadith</a>
-        </div>
-
-        {/* Right Actions */}
-        <div className="flex items-center gap-2 md:gap-4">
-          <button 
-            onClick={() => router.push('/dashboard')} 
-            className="flex items-center gap-2 px-3 md:px-6 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all"
-          >
-            <User size={16} className="text-[#D4AF37]" />
-            <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">My Dashboard</span>
-          </button>
-
-          <button 
-            onClick={() => router.push('/support')}
-            className="bg-[#D4AF37] text-[#1a2e2a] px-5 md:px-8 py-2 md:py-3 rounded-full font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg"
-          >
-            <span className="sm:hidden">Support</span>
-            <span className="hidden sm:inline">Support Mission</span>
-          </button> 
-        </div>
-      </nav>
-
+      
       {/* MOBILE OVERLAY DRAWER PANEL */}
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -214,7 +163,7 @@ useEffect(() => {
           </motion.div>
         )}
       </AnimatePresence>
-
+<main className="flex-grow">
      {/* 2. HERO SECTION - FIXED LAYERS */}
 <section className="relative min-h-[90vh] flex flex-col justify-center items-center py-20 px-4 overflow-hidden">
   
@@ -476,111 +425,12 @@ useEffect(() => {
     </div>
   </div>
 </section>
-      {/* ========================================================================= */}
-      {/* ======================= PREMIUM CORE DAWAH FOOTER ======================= */}
-      {/* ========================================================================= */}
-      <footer className="bg-[#142320] text-white pt-24 pb-12 border-t border-white/5 relative overflow-hidden shrink-0">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')] opacity-[0.02] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 relative z-10 pb-16 border-b border-white/5">
-          
-          {/* Column 1: Brand & Identity */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-              <div className="bg-[#D4AF37] p-2 rounded-xl">
-                <Sparkles size={18} className="text-[#1a2e2a]" />
-              </div>
-              <span className="text-2xl font-black tracking-tighter uppercase italic">
-                Sirat<span className="text-[#D4AF37]">.ai</span>
-              </span>
-            </div>
-            <p className="text-white/60 text-xs leading-relaxed font-medium">
-              Siraat AI is dedicated to providing instant, verified knowledge on Al-Quran and Sahih Hadith, powered by secure scalable technology frameworks for the global Muslim community.
-            </p>
-            <div className="flex items-center gap-3 pt-2">
-              {[
-                { icon: <Youtube size={16} />, link: "https://www.youtube.com/@DawahSirat" },
-                { icon: <Twitter size={16} />, link: "https://twitter.com" },
-                { icon: <Instagram size={16} />, link: "https://instagram.com" },
-                { icon: <Facebook size={16} />, link: "https://facebook.com" }
-              ].map((social, idx) => (
-                <a 
-                  key={idx} 
-                  href={social.link} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-[#D4AF37] hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all duration-300"
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-          </div>
 
-          {/* Column 2: Platform Links */}
-          <div className="space-y-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Knowledge Center</h4>
-            <ul className="space-y-3 text-xs font-bold uppercase tracking-widest text-white/60">
-              <li><a href="/quran" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> Al-Quran Index</a></li>
-              <li><a href="/hadith" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> Hadith Texts</a></li>
-              <li><a href="/chat" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> Ask Siraat Bot</a></li>
-              <li><a href="/dashboard" className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors group"><ChevronRight size={12} className="opacity-0 group-hover:opacity-100 text-[#D4AF37] transition-all -ml-3 group-hover:ml-0" /> User Dashboard</a></li>
-            </ul>
-          </div>
 
-          {/* Column 3: Contact Details */}
-          <div className="space-y-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Contact Registry</h4>
-            <ul className="space-y-4 text-xs font-medium text-white/70">
-              <li className="flex items-start gap-3">
-                <MapPin size={16} className="text-[#D4AF37] shrink-0 mt-0.5" />
-                <span>Lahore Startup Workspace, Punjab, Pakistan</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail size={16} className="text-[#D4AF37] shrink-0" />
-                <a href="mailto:support@sirat.ai" className="hover:underline hover:text-white transition-colors">support@sirat.ai</a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone size={16} className="text-[#D4AF37] shrink-0" />
-                <span>+92 (42) 111-SIRAT</span>
-              </li>
-            </ul>
-          </div>
 
-          {/* Column 4: Newsletter Segment */}
-          <div className="space-y-6">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Newsletter Feed</h4>
-            <p className="text-white/60 text-xs leading-relaxed font-medium">
-              Subscribe to receive weekly authentic insights, updates on development iterations, and community highlights.
-            </p>
-            <form onSubmit={handleSubscribe} className="relative flex items-center">
-              <input 
-                type="email" 
-                required
-                value={subscriberEmail}
-                onChange={(e) => setSubscriberEmail(e.target.value)}
-                placeholder="Enter email address"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-4 pr-12 text-xs font-medium focus:outline-none focus:border-[#D4AF37] text-white transition-all placeholder:text-white/20"
-              />
-              <button 
-                type="submit"
-                className="absolute right-2 p-2 bg-[#D4AF37] text-[#1a2e2a] rounded-lg hover:brightness-110 active:scale-95 transition-all"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </form>
-          </div>
-        </div>
-
-        {/* Legal and Copyright area block */}
-        <div className="max-w-7xl mx-auto px-6 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-white/30">
-          <p>&copy; 2026 Dawah Siraat. All rights reserved across international modules.</p>
-          <div className="flex gap-6">
-            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
-          </div>
-        </div>
-      </footer>
+</main>
+      
+      <Footer/>
 {/* Welcome Modal */}
 <AnimatePresence>
   {showWelcome && (

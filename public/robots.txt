@@ -1,0 +1,11 @@
+# User-agent sab search engines ke liye hai
+User-agent: *
+# Sabhi pages ko index aur crawl karne ki ijazat dein
+Allow: /
+
+# Sitemap ka sahi path (siratai.com ke mutabiq)
+Sitemap: https://siratai.com/sitemap.xml
+
+# Private routes (Optional, agar aapke paas hain)
+Disallow: /api/
+Disallow: /admin/

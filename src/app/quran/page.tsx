@@ -1,5 +1,6 @@
 "use client";
-
+import Header from "@/components/layout/header"; // yahan 'header' lowercase karein
+import Footer from "@/components/layout/footer"; // yahan 'footer' lowercase karein
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 
 export default function QuranPage() {
+
   const router = useRouter();
 
   // --- STATE ---
@@ -16,8 +18,11 @@ export default function QuranPage() {
   const [surahs, setSurahs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // --- QURANIC SCIENTIFIC MIRACLES DATA ---
+
+
+ // --- QURANIC SCIENTIFIC MIRACLES DATA ---
   const quranMiracles = [
     { 
       title: "The Expanding Universe", 
@@ -64,7 +69,13 @@ export default function QuranPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#fdfcf8] p-4 md:p-8 lg:p-12 font-sans selection:bg-[#D4AF37] selection:text-white pb-20 overflow-x-hidden">
+    <div className="min-h-screen bg-[#fdfcf8] font-sans flex flex-col justify-between overflow-x-hidden">
+      
+      {/* 1. Header Add kiya */}
+      <Header setIsMobileMenuOpen={setIsMobileMenuOpen} />
+
+      <main className="flex-grow p-4 md:p-8 lg:p-12">
+
       <div className="max-w-6xl mx-auto space-y-12 md:space-y-16">
         
         {/* --- CLEANED QURAN HEADER --- */}
@@ -237,6 +248,10 @@ export default function QuranPage() {
           </AnimatePresence>
         </div>
       </div>
+      </main>
+
+      {/* 2. Footer Add kiya */}
+      <Footer />
     </div>
   );
 }
