@@ -373,7 +373,6 @@ useEffect(() => {
         </div>
       </section>
 
-      // --- MAIN SECTION ---
 <section className="py-20 px-6 bg-[#fdfcf8]">
   <div className="max-w-6xl mx-auto">
     <h2 className="text-3xl md:text-4xl font-serif font-black text-[#1A2E2A] text-center mb-16">
