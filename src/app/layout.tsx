@@ -1,25 +1,25 @@
+// src/app/layout.tsx - Final Working Code
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Tracker from "@/components/Tracker"; 
-import AuthProvider from "@/components/AuthProvider"; // Ye naya file banayein
+import AuthProvider from "@/components/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
-// src/app/layout.tsx mein
+
 export const metadata: Metadata = {
-  // Environment variable use na karein, seedha string dein
-  metadataBase: new URL('https://www.siratai.com'), 
+  metadataBase: new URL('https://www.siratai.com'),
   title: "Siratai | Authentic Islamic Wisdom & Digital Guidance",
-  // ...
+  description: "Get instant, verified answers from Al-Quran and Sahih Hadith. Explore our digital sanctuary for Fiqh, Family Laws, and Zakat guidance.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Siratai", // Corrected system name per your request
+    "name": "Siratai",
     "url": "https://siratai.com",
     "potentialAction": {
       "@type": "SearchAction",
