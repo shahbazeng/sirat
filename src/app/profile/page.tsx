@@ -3,17 +3,14 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from "next-auth/react";
-import { User, Mail, Shield, ArrowLeft, LogOut, Settings } from 'lucide-react';
+// ... (rest of your imports)
 
 export default function ProfilePage() {
   const router = useRouter();
 
-  // --- FIXED: Next-Auth Safe Wrapper For Profile Static Export Mode ---
-  const sessionContext = useSession() || {};
-  const session = sessionContext.data || null;
-  const status = sessionContext.status || "authenticated";
+  // Correct way to handle session state in TS
+  const { data: session, status } = useSession();
 
-  // Testing ke liye automatic fallback profile details agar session zero ho
   const activeUser = session?.user || { 
     name: "Shahbaz Ali", 
     email: "shahbaz@gmail.com" 
