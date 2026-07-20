@@ -8,7 +8,12 @@ import AuthProvider from "@/components/AuthProvider"; // Ye naya file banayein
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
-// Metadata waisa hi rahega...
+export const metadata: Metadata = {
+  // environment variable hatayein aur seedha URL dein
+  metadataBase: new URL('https://www.siratai.com'), 
+  title: "Siratai | Authentic Islamic Wisdom",
+  // ...
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const websiteSchema = {
