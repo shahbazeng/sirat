@@ -4,33 +4,32 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Mail, Lock, Sparkles, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Sparkles, ArrowRight, Loader2 } from "lucide-react";
+import { FcGoogle } from "react-icons/fc"; // Import Google Icon
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
 
+  // Email/Password Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) return;
-
     setLoading(true);
-
     try {
       const response = await signIn("credentials", {
         email: email.toLowerCase().trim(),
         password: password,
-        redirect: false, // Redirect hum middleware se handle karenge
+        redirect: false,
       });
-
       if (response?.error) {
         alert("Authentication Fault: Email ya Password durust nahi hai.");
       } else {
-        // Redirect hatakar refresh karein taake middleware role check kar sake
-        router.push("/"); 
-        router.refresh(); 
+        router.push("/");
+        router.refresh();
       }
     } catch (err) {
       console.error("Login Error:", err);
@@ -38,6 +37,20 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Google Login Handler
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      // Google provider ka naam 'google' hai
+      await signIn("google", { callbackUrl: "/" });
+    } catch (error) {
+      console.error("Google Sign In Error:", error);
+      alert("Google Authentication Failed.");
+      setGoogleLoading(false);
+    }
+    // Note: Successful hone par callbackUrl par redirect ho jayega
   };
 
   return (
@@ -91,13 +104,30 @@ export default function LoginPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md space-y-12"
+          className="w-full max-w-md space-y-10" // Increased space-y
         >
           <div className="text-center md:text-left space-y-4">
             <h2 className="text-4xl font-black text-[#1a2e2a] tracking-tight">Access Your Sanctuary</h2>
             <p className="text-gray-400 text-sm font-medium">Please enter your credentials to continue your journey.</p>
           </div>
 
+          {/* GOOGLE SIGN IN BUTTON */}
+          <button 
+            onClick={handleGoogleLogin}
+            disabled={googleLoading}
+            className="w-full bg-white border border-gray-100 text-gray-600 py-4 rounded-2xl font-bold text-sm hover:border-gray-200 hover:bg-gray-50 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-70"
+          >
+            {googleLoading ? <Loader2 className="animate-spin text-[#1a2e2a]" size={20} /> : <FcGoogle size={20} />}
+            {googleLoading ? "Connecting..." : "Sign In with Google"}
+          </button>
+
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-px bg-gray-100"></div>
+            <span className="text-xs text-gray-300 font-medium uppercase">or</span>
+            <div className="flex-1 h-px bg-gray-100"></div>
+          </div>
+
+          {/* EMAIL/PASS FORM */}
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-4">
               <div className="relative group">
