@@ -49,25 +49,33 @@ export const authOptions: NextAuthOptions = {
         const email = user.email;
         if (!email) return false;
 
-        let dbUser = await prisma.user.findUnique({ where: { email } });
+        const dbUser = await prisma.user.findUnique({ where: { email } });
         if (!dbUser) {
           await prisma.user.create({
-            data: { email, name: user.name || "Sirat User", role: "user" }
+            data: { 
+              email, 
+              name: user.name || "Sirat User", 
+              role: "user" 
+            }
           });
         }
         return true;
       }
       return true;
     },
-    async jwt({ token, user }: { token: JWT; user: User | null }) {
+
+    async jwt({ token, user }) {
+      // Jab user pehli baar login karega to 'user' object milay ga
       if (user) {
         token.role = (user as any).role || "user";
       }
       return token;
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
+
+    async session({ session, token }) {
+      // Token se role nikal kar session mein set karein
       if (session.user) {
-        (session.user as any).role = token.role;
+        session.user.role = token.role as string;
       }
       return session;
     }
