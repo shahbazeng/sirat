@@ -3,8 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from "next-auth/react";
-// ... (rest of your imports)
-
+import { User, Mail, Shield, ArrowLeft, LogOut, Settings } from 'lucide-react';
 export default function ProfilePage() {
   const router = useRouter();
 
