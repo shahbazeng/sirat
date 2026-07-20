@@ -73,8 +73,8 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      // Token se role nikal kar session mein set karein
       if (session.user) {
+        // Ab TypeScript ise pehchan lega kyunke humne declare kar diya hai
         session.user.role = token.role as string;
       }
       return session;
