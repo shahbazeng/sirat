@@ -9,9 +9,7 @@ export default function ProfilePage() {
   const router = useRouter();
 
   // --- FIXED: Next-Auth Safe Wrapper For Profile Static Export Mode ---
-  const sessionContext = useSession() || {};
-  const session = sessionContext.data || null;
-  const status = sessionContext.status || "authenticated";
+  const { data: session, status } = useSession();
 
   // Testing ke liye automatic fallback profile details agar session zero ho
   const activeUser = session?.user || { 
