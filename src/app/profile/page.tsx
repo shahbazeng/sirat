@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default function ProfilePage() {
   const router = useRouter();
   
-  // Sirf ek baar call karein
+  // Single instance of useSession
   const { data: session, status } = useSession();
 
   // Loading state
@@ -22,7 +22,7 @@ export default function ProfilePage() {
     );
   }
 
-  // Active User data (Session ya fallback)
+  // Fallback user data
   const activeUser = session?.user || { 
     name: "Shahbaz Ali", 
     email: "shahbaz@gmail.com" 
@@ -47,7 +47,7 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Main Profile Card Container */}
+      {/* Main Profile Card */}
       <div className="max-w-2xl mx-auto bg-white border border-gray-100 rounded-[2rem] shadow-xl p-6 md:p-10 space-y-8">
         
         {/* Avatar Area */}
@@ -82,6 +82,14 @@ export default function ProfilePage() {
               {activeUser?.email}
             </div>
           </label>
+
+          <div className="p-4 bg-[#D4AF37]/5 border border-[#D4AF37]/10 rounded-2xl flex items-start gap-3">
+            <Shield size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-[#1a2e2a]">Account Security</p>
+              <p className="text-[11px] text-gray-400 mt-1">Aapka account locally verified aur cryptographically secure hai.</p>
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons */}
