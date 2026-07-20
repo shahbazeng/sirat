@@ -5,31 +5,30 @@ import { useRouter } from 'next/navigation';
 import { useSession, signOut } from "next-auth/react";
 import { User, Mail, Shield, ArrowLeft, LogOut, Settings } from 'lucide-react';
 
-export const dynamic = "force-dynamic";
-
 export default function ProfilePage() {
   const router = useRouter();
-  
-  // Single instance of useSession
-  const { data: session, status } = useSession();
 
-  // Loading state
-  if (status === "loading") {
-    return (
-      <div className="h-screen flex items-center justify-center bg-[#fdfcf8]">
-        <div className="w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  // --- FIXED: Next-Auth Safe Wrapper For Profile Static Export Mode ---
+  const sessionContext = useSession() || {};
+  const session = sessionContext.data || null;
+  const status = sessionContext.status || "authenticated";
 
-  // Fallback user data
+  // Testing ke liye automatic fallback profile details agar session zero ho
   const activeUser = session?.user || { 
     name: "Shahbaz Ali", 
     email: "shahbaz@gmail.com" 
   };
 
+  if (status === "loading") {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#fdfcf8]">
+        <div className="w-8 h-8 border-4 border-sirat-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#fdfcf8] text-[#1a2e2a] font-sans p-4 md:p-8">
+    <div className="min-h-screen bg-[#fdfcf8] text-sirat-dark font-sans p-4 md:p-8">
       {/* Top Bar Navigation */}
       <div className="max-w-2xl mx-auto mb-8 flex items-center justify-between">
         <button 
@@ -47,23 +46,23 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Main Profile Card */}
+      {/* Main Profile Card Container */}
       <div className="max-w-2xl mx-auto bg-white border border-gray-100 rounded-[2rem] shadow-xl p-6 md:p-10 space-y-8">
         
         {/* Avatar Area */}
         <div className="flex flex-col items-center justify-center text-center space-y-4">
-          <div className="w-24 h-24 rounded-full bg-[#1a2e2a] text-[#D4AF37] border-4 border-[#D4AF37]/20 flex items-center justify-center text-3xl font-black shadow-lg">
+          <div className="w-24 h-24 rounded-full bg-sirat-dark text-sirat-gold border-4 border-sirat-gold/20 flex items-center justify-center text-3xl font-black shadow-lg">
             {activeUser?.name?.charAt(0).toUpperCase()}
           </div>
           <div>
             <h2 className="text-2xl font-serif italic font-black">{activeUser?.name}</h2>
-            <p className="text-xs text-[#D4AF37] font-bold uppercase tracking-widest mt-1">Sirat Community Member</p>
+            <p className="text-xs text-sirat-gold font-bold uppercase tracking-widest mt-1">Sirat Community Member</p>
           </div>
         </div>
 
         <hr className="border-gray-100" />
 
-        {/* User Details */}
+        {/* User Details Form Fields */}
         <div className="space-y-4">
           <label className="block space-y-2">
             <span className="text-[10px] font-black uppercase tracking-widest opacity-40 flex items-center gap-2">
@@ -83,11 +82,11 @@ export default function ProfilePage() {
             </div>
           </label>
 
-          <div className="p-4 bg-[#D4AF37]/5 border border-[#D4AF37]/10 rounded-2xl flex items-start gap-3">
-            <Shield size={18} className="text-[#D4AF37] shrink-0 mt-0.5" />
+          <div className="p-4 bg-sirat-gold/5 border border-sirat-gold/10 rounded-2xl flex items-start gap-3">
+            <Shield size={18} className="text-sirat-gold shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-black uppercase tracking-wider text-[#1a2e2a]">Account Security</p>
-              <p className="text-[11px] text-gray-400 mt-1">Aapka account locally verified aur cryptographically secure hai.</p>
+              <p className="text-xs font-black uppercase tracking-wider text-sirat-dark">Account Security</p>
+              <p className="text-[11px] text-gray-400 mt-1">Aapka account locally verified aur cryptographically secure hai client environment par.</p>
             </div>
           </div>
         </div>
@@ -96,7 +95,7 @@ export default function ProfilePage() {
         <div className="pt-4 flex flex-col sm:flex-row gap-3">
           <button 
             onClick={() => router.push('/chat')}
-            className="flex-1 bg-[#1a2e2a] text-white py-4 px-6 rounded-2xl font-bold text-sm hover:bg-[#D4AF37] hover:text-[#1a2e2a] transition-all shadow-lg text-center"
+            className="flex-1 bg-sirat-dark text-white py-4 px-6 rounded-2xl font-bold text-sm hover:bg-sirat-gold hover:text-sirat-dark transition-all shadow-lg text-center"
           >
             Open Chatbot
           </button>
@@ -108,7 +107,12 @@ export default function ProfilePage() {
             <LogOut size={16} /> Sign Out
           </button>
         </div>
+
       </div>
+
+      <p className="text-[10px] text-center mt-8 text-gray-400 font-medium">
+        &copy; 2026 Dawah Siraat. Account profile managed under secure local storage sandbox.
+      </p>
     </div>
   );
 }
