@@ -3,35 +3,18 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Tracker from "@/components/Tracker"; 
+import AuthProvider from "@/components/AuthProvider"; // Ye naya file banayein
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://siratai.com'),
-  title: "Sirat.ai | Authentic Islamic Wisdom & Digital Guidance",
-  description: "Get instant, verified answers from Al-Quran and Sahih Hadith. Explore our digital sanctuary for Fiqh, Family Laws, and Zakat guidance. Empowering the Ummah with technology.",
-  keywords: ["Sirat.ai", "Islamic AI", "Quran and Hadith", "Sharia guidance", "Zakat calculator", "Halal investment", "Islamic wisdom", "Dawah platform"],
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: "Sirat.ai | Authentic Islamic Wisdom",
-    description: "Your digital sanctuary for verified Islamic knowledge.",
-    url: 'https://siratai.com',
-    siteName: 'Sirat.ai',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
-    locale: 'en_US',
-    type: 'website',
-  },
-};
+// Metadata waisa hi rahega...
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Schema Markup corrected for siratai.com
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Sirat.ai",
+    "name": "Siratai", // Corrected system name per your request
     "url": "https://siratai.com",
     "potentialAction": {
       "@type": "SearchAction",
@@ -43,7 +26,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        {/* Google Analytics */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-YE4SMQJ61D"></script>
         <script
           dangerouslySetInnerHTML={{
@@ -55,7 +37,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
-        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
@@ -63,8 +44,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.variable} ${playfair.variable} antialiased`}>
         <Providers>
-          <Tracker /> 
-          {children}
+          <AuthProvider>
+            <Tracker />
+            {children}
+          </AuthProvider>
         </Providers>
       </body>
     </html>

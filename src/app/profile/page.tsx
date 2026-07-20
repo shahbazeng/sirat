@@ -4,11 +4,16 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from "next-auth/react";
 import { User, Mail, Shield, ArrowLeft, LogOut, Settings } from 'lucide-react';
+
 export default function ProfilePage() {
   const router = useRouter();
+  
+  // Static build mein useSession crash na ho, isliye check laga rahe hain
+  const sessionData = typeof window !== 'undefined' ? useSession() : { data: null, status: 'unauthenticated' };
+  
+  const session = sessionData?.data;
+  const status = sessionData?.status;
 
-  // Correct way to handle session state in TS
-  const { data: session, status } = useSession();
 
   const activeUser = session?.user || { 
     name: "Shahbaz Ali", 
