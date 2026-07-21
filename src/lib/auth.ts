@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email.toLowerCase().trim() }
         });
         if (!user || !user.password) {
-          throw new Error("User not found");a
+          throw new Error("User not found");
         }
         const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordCorrect) {
