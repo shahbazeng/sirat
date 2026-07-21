@@ -10,7 +10,7 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // <--- Production session drop aur redirect fix karne ke liye sab se zaroori
+  trustHost: true, // <--- Production session drop aur redirect fix karne ke liye lazmi hai
   pages: {
     signIn: '/login',
   },
@@ -27,7 +27,7 @@ const handler = NextAuth({
       try {
         if (new URL(url).origin === baseUrl) return url;
       } catch (e) {
-        // Fallback agar URL parse na ho sake
+        // Fallback
       }
       return `${baseUrl}/chat`;
     },
