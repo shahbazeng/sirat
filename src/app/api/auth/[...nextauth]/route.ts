@@ -1,4 +1,3 @@
-// src/app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -10,9 +9,8 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // <--- Production session drop aur redirect fix karne ke liye lazmi hai
   pages: {
-    signIn: '/login',
+    signIn: '/login', // Agar aapka login page /login hai
   },
   callbacks: {
     async session({ session, token }) {
@@ -20,18 +18,8 @@ const handler = NextAuth({
     },
     async jwt({ token, user, account }) {
       return token;
-    },
-    async redirect({ url, baseUrl }) {
-      // Agar relative URL ho ya same domain ho toh wahan redirect karein, warna seedha /chat par
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      try {
-        if (new URL(url).origin === baseUrl) return url;
-      } catch (e) {
-        // Fallback
-      }
-      return `${baseUrl}/chat`;
-    },
-  },
+    }
+  }
 });
 
 export { handler as GET, handler as POST };
