@@ -92,6 +92,7 @@ export const authOptions: NextAuthOptions = {
       const productionBase = 'https://www.siratai.com';
       const targetBase = baseUrl.includes('localhost') ? baseUrl : productionBase;
 
+      // Agar explicit callbackUrl `/chat` diya hai toh wahan redirect karein
       if (url.startsWith("/")) return `${targetBase}${url}`;
       try {
         if (new URL(url).origin === targetBase) return url;
