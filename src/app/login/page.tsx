@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
 
-  // Email/Password Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) return;
@@ -39,7 +38,6 @@ export default function LoginPage() {
     }
   };
 
-  // Google Login Handler - Updated with explicit dashboard/chat redirect callbackUrl
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
@@ -53,8 +51,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#fdfcf8] flex flex-col md:flex-row overflow-hidden selection:bg-[#D4AF37] selection:text-white">
-      
-      {/* LEFT SIDE: THE CITY OF KNOWLEDGE VISUAL */}
       <div className="hidden md:flex md:w-1/2 bg-[#1a2e2a] relative flex-col justify-center p-20 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')]" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[100px]" />
@@ -93,7 +89,6 @@ export default function LoginPage() {
         </motion.div>
       </div>
 
-      {/* RIGHT SIDE: CLEAN LOGIN FORM */}
       <div className="flex-1 flex items-center justify-center p-8 md:p-20 relative bg-white">
         <div className="absolute top-8 left-8 md:hidden">
             <span className="text-xl font-black italic tracking-tighter uppercase text-[#1a2e2a]">Sirat<span className="text-[#D4AF37]">.ai</span></span>
@@ -109,7 +104,6 @@ export default function LoginPage() {
             <p className="text-gray-400 text-sm font-medium">Please enter your credentials to continue your journey.</p>
           </div>
 
-          {/* GOOGLE SIGN IN BUTTON */}
           <button 
             onClick={handleGoogleLogin}
             disabled={googleLoading}
@@ -125,7 +119,6 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-gray-100"></div>
           </div>
 
-          {/* EMAIL/PASS FORM */}
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-4">
               <div className="relative group">

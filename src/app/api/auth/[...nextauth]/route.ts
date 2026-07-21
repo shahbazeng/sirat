@@ -9,8 +9,9 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // Vercel production session drop fix
   pages: {
-    signIn: '/login', // Agar aapka login page /login hai
+    signIn: '/login',
   },
   callbacks: {
     async session({ session, token }) {
@@ -18,8 +19,15 @@ const handler = NextAuth({
     },
     async jwt({ token, user, account }) {
       return token;
-    }
-  }
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch (e) {}
+      return `${baseUrl}/chat`;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
