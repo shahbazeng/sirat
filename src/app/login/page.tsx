@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Mail, Lock, Sparkles, ArrowRight, Loader2 } from "lucide-react";
-import { FcGoogle } from "react-icons/fc"; // Import Google Icon
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -28,7 +28,7 @@ export default function LoginPage() {
       if (response?.error) {
         alert("Authentication Fault: Email ya Password durust nahi hai.");
       } else {
-        router.push("/");
+        router.push("/chat");
         router.refresh();
       }
     } catch (err) {
@@ -39,18 +39,16 @@ export default function LoginPage() {
     }
   };
 
-  // Google Login Handler
+  // Google Login Handler - Updated with explicit dashboard/chat redirect callbackUrl
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      // Google provider ka naam 'google' hai
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl: "/chat" });
     } catch (error) {
       console.error("Google Sign In Error:", error);
       alert("Google Authentication Failed.");
       setGoogleLoading(false);
     }
-    // Note: Successful hone par callbackUrl par redirect ho jayega
   };
 
   return (
@@ -104,7 +102,7 @@ export default function LoginPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md space-y-10" // Increased space-y
+          className="w-full max-w-md space-y-10"
         >
           <div className="text-center md:text-left space-y-4">
             <h2 className="text-4xl font-black text-[#1a2e2a] tracking-tight">Access Your Sanctuary</h2>
