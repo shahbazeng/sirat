@@ -30,11 +30,13 @@ export const authOptions = {
   pages: {
     signIn: '/login', // Jahan user login karega
   },
-  callbacks: {
-    async redirect({ url, baseUrl }) {
-      // Agar user login kare toh usay seedha chat/dashboard par bhejain
-      if (url.startsWith(baseUrl)) return url;
-      return `${baseUrl}/chat`; // <--- Yeh raha aapka redirect path
-    },
+  // src/app/api/auth/[...nextauth]/route.ts
+callbacks: {
+  async redirect({ url, baseUrl }) {
+    // Agar relative URL ho ya same domain ho toh wahan redirect karein, warna /chat par
+    if (url.startsWith("/")) return `${baseUrl}${url}`;
+    else if (new URL(url).origin === baseUrl) return url;
+    return `${baseUrl}/chat`;
   },
+},
 };
