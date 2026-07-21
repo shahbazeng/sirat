@@ -10,12 +10,25 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // <--- Yeh production par redirect loop aur session drop ko rokti hai
+  trustHost: true, // <--- Production session drop aur redirect fix karne ke liye sab se zaroori
   pages: {
     signIn: '/login',
   },
   callbacks: {
+    async session({ session, token }) {
+      return session;
+    },
+    async jwt({ token, user, account }) {
+      return token;
+    },
     async redirect({ url, baseUrl }) {
+      // Agar relative URL ho ya same domain ho toh wahan redirect karein, warna seedha /chat par
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      try {
+        if (new URL(url).origin === baseUrl) return url;
+      } catch (e) {
+        // Fallback agar URL parse na ho sake
+      }
       return `${baseUrl}/chat`;
     },
   },
