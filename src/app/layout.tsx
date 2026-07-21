@@ -12,7 +12,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif"
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.siratai.com'),
   title: "Siratai | Authentic Islamic Wisdom & Digital Guidance",
-  description: "Get instant, verified answers from Al-Quran and Sahih Hadith. Explore our digital sanctuary for Fiqh, Family Laws, and Zakat guidance.",
+  description: "Get instant, verified answers from Al-Quran and Sahih Hadith.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
