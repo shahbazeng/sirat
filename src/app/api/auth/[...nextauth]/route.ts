@@ -13,6 +13,13 @@ const handler = NextAuth({
     signIn: '/login',
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Google sign in ko allow karne ke liye true return karna lazmi hai
+      if (account?.provider === "google") {
+        return true;
+      }
+      return true;
+    },
     async session({ session, token }) {
       return session;
     },
@@ -20,7 +27,6 @@ const handler = NextAuth({
       return token;
     },
     async redirect({ url, baseUrl }) {
-      // Force production domain if baseUrl is misdetected by Vercel proxy
       const productionBase = 'https://www.siratai.com';
       const targetBase = baseUrl.includes('localhost') ? baseUrl : productionBase;
 
