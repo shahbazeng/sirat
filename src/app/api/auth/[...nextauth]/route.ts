@@ -20,11 +20,16 @@ const handler = NextAuth({
       return token;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Force production domain if baseUrl is misdetected by Vercel proxy
+      const productionBase = 'https://www.siratai.com';
+      const targetBase = baseUrl.includes('localhost') ? baseUrl : productionBase;
+
+      if (url.startsWith("/")) return `${targetBase}${url}`;
       try {
-        if (new URL(url).origin === baseUrl) return url;
+        if (new URL(url).origin === targetBase) return url;
       } catch (e) {}
-      return `${baseUrl}/chat`;
+      
+      return `${targetBase}/chat`;
     },
   },
 });
