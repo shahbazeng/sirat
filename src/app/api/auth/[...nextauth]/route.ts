@@ -1,5 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const handler = NextAuth({
   providers: [
@@ -14,9 +17,31 @@ const handler = NextAuth({
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Google sign in ko allow karne ke liye true return karna lazmi hai
       if (account?.provider === "google") {
-        return true;
+        if (!user.email) return false;
+        
+        try {
+          // Check karein ke user pehle se database mein hai ya nahi
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+
+          if (!existingUser) {
+            // Agar nahi hai, toh Google user ko database mein save karein
+            await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name || "Google User",
+                image: user.image,
+                role: "USER",
+              },
+            });
+          }
+          return true;
+        } catch (error) {
+          console.error("Database Error during Google Sign-In:", error);
+          return false;
+        }
       }
       return true;
     },
