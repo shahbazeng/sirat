@@ -9,7 +9,6 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // Vercel production session drop fix
   pages: {
     signIn: '/login',
   },
