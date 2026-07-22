@@ -3,11 +3,25 @@ import Header from "@/components/layout/header"; // yahan 'header' lowercase kar
 import Footer from "@/components/layout/footer"; // yahan 'footer' lowercase karein
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Metadata } from "next";
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Book, Search, Play, Clock, LayoutGrid, List, Bookmark, 
   Sparkles, Loader2, Heart, ShieldCheck, Beaker, ChevronRight 
 } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: "Al-Quran Index & Search | Sirat AI",
+  description: "Explore the Holy Quran with translations, verified context mapping, and instant AI-powered search across all Surahs on Sirat AI.",
+  keywords: ["Quran search AI", "Holy Quran online", "Surah translation", "Sirat AI Quran", "Islamic digital sanctuary"],
+  openGraph: {
+    title: "Al-Quran Index & Search | Sirat AI",
+    description: "Explore the Holy Quran with translations and verified context mapping on Sirat AI.",
+    url: 'https://www.siratai.com/quran',
+    siteName: 'Sirat AI',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Sirat AI Quran' }],
+  },
+};
 
 export default function QuranPage() {
 

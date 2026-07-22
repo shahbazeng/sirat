@@ -1,4 +1,4 @@
-// src/app/layout.tsx - Final Working Code
+// src/app/layout.tsx - Final Global SEO Optimized Code
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -8,7 +8,6 @@ import AuthProvider from "@/components/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
-
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.siratai.com'),
@@ -54,24 +53,17 @@ export const metadata: Metadata = {
     description: 'Explore authentic Islamic scholarship and instant verified answers on Sirat AI.',
     images: ['/og-image.jpg'],
   },
-};     
-
-
-
-
-
-
-
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Siratai",
-    "url": "https://siratai.com",
+    "name": "Sirat AI",
+    "url": "https://www.siratai.com",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://siratai.com/chat?q={search_term_string}",
+      "target": "https://www.siratai.com/chat?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };

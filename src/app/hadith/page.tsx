@@ -21,7 +21,6 @@ export default function HadithPage() {
   const router = useRouter();
 
   // --- STATE ---
-  // Defaulting to 'all' and managing filter types cleanly
   const [activeTab, setActiveTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,9 +28,9 @@ export default function HadithPage() {
 
   // --- DYNAMIC HADITH OF THE DAY ---
   const hadithOfTheDay = {
-    text: "«إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى»",
+    text: "«إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى»",
     translation: "Actions are but by intentions, and every person shall have what he intended.",
-    reference: "Sahih al-Bukhari [1]",
+    reference: "Sahih al-Bukhari",
     narrator: "Narrated by Umar bin Al-Khattab (R.A)"
   };
 
@@ -58,7 +57,6 @@ export default function HadithPage() {
     { id: 'shia', label: 'Kutub al-Arba’ah (Shia)' },
   ];
 
-  // Logic pipeline processing multi-layered structural parameters
   const filteredBooks = hadithBooks.filter(b => {
     const matchesSearch = b.name.toLowerCase().includes(searchTerm.toLowerCase()) || b.author.toLowerCase().includes(searchTerm.toLowerCase());
     if (activeTab === 'all') return matchesSearch;
@@ -67,7 +65,7 @@ export default function HadithPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert("Hadith text copy ho gaya!");
+    alert("Hadith text copied to clipboard!");
   };
 
   const speak = (text: string) => {
@@ -88,7 +86,7 @@ export default function HadithPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fdfcf8] font-sans selection:bg-[#D4AF37] selection:text-white pb-20 overflow-x-hidden">
+    <main className="min-h-screen bg-[#fdfcf8] font-sans selection:bg-[#D4AF37] selection:text-white pb-20 overflow-x-hidden">
       
       {/* ================= STICKY NAVIGATION BAR ================= */}
       <nav className="bg-[#1a2e2a]/95 backdrop-blur-md text-white px-4 md:px-12 py-5 flex items-center justify-between sticky top-0 z-[100] border-b border-white/5 shadow-xl transition-all duration-300">
@@ -116,6 +114,7 @@ export default function HadithPage() {
         <div className="flex items-center gap-2 md:gap-4">
           <button 
             onClick={() => router.push('/chat')} 
+            aria-label="Bot Workspace"
             className="flex items-center gap-2 px-3 md:px-5 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 text-xs font-bold uppercase transition-all"
           >
             <Home size={14} className="text-[#D4AF37]" />
@@ -124,6 +123,7 @@ export default function HadithPage() {
 
           <button 
             onClick={() => router.push('/dashboard')} 
+            aria-label="My Dashboard"
             className="flex items-center gap-2 px-3 md:px-5 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 text-xs font-bold uppercase transition-all"
           >
             <User size={14} className="text-[#D4AF37]" />
@@ -152,7 +152,7 @@ export default function HadithPage() {
         </header>
 
         {/* --- HADITH OF THE DAY (PREMIUM BANNER) --- */}
-        <section className="bg-[#1a2e2a] rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl border-b-8 border-[#D4AF37]">
+        <section className="bg-[#1a2e2a] rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl border-b-8 border-[#D4AF37]" aria-label="Hadith of the Day">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/islamic-art.png')] opacity-5 pointer-events-none" />
           <div className="relative z-10 space-y-6 max-w-4xl">
             <div className="flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full w-fit text-[9px] font-black uppercase tracking-widest text-[#D4AF37]">
@@ -175,10 +175,10 @@ export default function HadithPage() {
                 Ref: {hadithOfTheDay.reference}
               </span>
               <div className="flex gap-2">
-                <button onClick={() => copyToClipboard(`${hadithOfTheDay.translation} — ${hadithOfTheDay.reference}`)} className="p-3 bg-white/5 hover:bg-[#D4AF37] hover:text-[#1a2e2a] rounded-xl transition-all border border-white/10 text-white/80">
+                <button onClick={() => copyToClipboard(`${hadithOfTheDay.translation} — ${hadithOfTheDay.reference}`)} aria-label="Copy Hadith" className="p-3 bg-white/5 hover:bg-[#D4AF37] hover:text-[#1a2e2a] rounded-xl transition-all border border-white/10 text-white/80">
                   <Copy size={14} />
                 </button>
-                <button onClick={() => speak(hadithOfTheDay.translation)} className={`p-3 rounded-xl transition-all border border-white/10 ${isSpeaking ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-white/5 hover:bg-[#D4AF37] hover:text-[#1a2e2a] text-white/80'}`}>
+                <button onClick={() => speak(hadithOfTheDay.translation)} aria-label="Read Aloud Hadith" className={`p-3 rounded-xl transition-all border border-white/10 ${isSpeaking ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-white/5 hover:bg-[#D4AF37] hover:text-[#1a2e2a] text-white/80'}`}>
                   <Volume2 size={14} />
                 </button>
               </div>
@@ -196,17 +196,19 @@ export default function HadithPage() {
               <input 
                 type="text" 
                 placeholder="Search Hadith source, author or title..." 
+                aria-label="Search Hadith source"
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-16 pr-8 py-5 bg-white border border-gray-100 rounded-3xl md:rounded-[2rem] outline-none focus:ring-8 focus:ring-[#D4AF37]/5 font-bold text-sm shadow-sm transition-all"
+                className="w-full pl-16 pr-8 py-5 bg-white border border-gray-100 rounded-3xl md:rounded-[2rem] outline-none focus:ring-8 focus:ring-[#D4AF37]/5 font-bold text-sm shadow-sm transition-all text-gray-900"
               />
             </div>
 
-            {/* Navigation Filter Tabs with Sectarian Containment Logic */}
+            {/* Navigation Filter Tabs */}
             <div className="flex gap-2 p-1.5 bg-gray-100/50 rounded-[2rem] overflow-x-auto no-scrollbar max-w-full">
               {categories.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  aria-label={tab.label}
                   className={`flex items-center gap-2 px-6 md:px-8 py-3.5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                     activeTab === tab.id ? 'bg-[#1a2e2a] text-[#D4AF37] shadow-xl' : 'text-gray-400 hover:text-[#1a2e2a]'
                   }`}
@@ -249,9 +251,9 @@ export default function HadithPage() {
                       </div>
                       
                       <div className="space-y-1">
-                        <h4 className="font-serif font-black text-xl md:text-2xl text-[#1a2e2a] tracking-tight group-hover:text-[#D4AF37] transition-colors">
+                        <h2 className="font-serif font-black text-xl md:text-2xl text-[#1a2e2a] tracking-tight group-hover:text-[#D4AF37] transition-colors">
                           {book.name}
-                        </h4>
+                        </h2>
                         <p className="text-[11px] text-gray-400 font-medium">Compiled by {book.author}</p>
                       </div>
                     </div>
@@ -272,18 +274,19 @@ export default function HadithPage() {
         </div>
 
         {/* --- CROSS SECTARIAN CROSS-REFERENCE VERIFICATION ENGINE --- */}
-        <section className="bg-white border border-dashed border-gray-200 rounded-[2.5rem] p-8 text-center max-w-4xl mx-auto space-y-4">
+        <section className="bg-white border border-dashed border-gray-200 rounded-[2.5rem] p-8 text-center max-w-4xl mx-auto space-y-4" aria-label="Verification Engine">
           <div className="w-12 h-12 bg-[#D4AF37]/10 text-[#D4AF37] rounded-full flex items-center justify-center mx-auto shadow-inner">
             <ShieldCheck size={24} />
           </div>
           <div className="space-y-2">
-            <h4 className="text-xl font-serif font-black text-[#1a2e2a]">Cross-Reference Validation Engine</h4>
+            <h3 className="text-xl font-serif font-black text-[#1a2e2a]">Cross-Reference Validation Engine</h3>
             <p className="text-xs text-gray-400 max-w-md mx-auto font-medium">
-              Aap kisi bhi Sunni ya Shia text source ki accuracy, chain of narrators (Asma al-Rijal) ya sanad verify karna chahte hain? Direct statement bhej kar tasdeeq karwayen.
+              Verify authentic context, chains of narration (Asma al-Rijal), and textual authenticity across authentic Sunni and Shia primary literature pools instantly.
             </p>
           </div>
           <button 
-            onClick={() => router.push('/chat?q=Analyze and cross-verify this Hadith text text statement across Sunni and Shia corpuses: ')}
+            onClick={() => router.push('/chat?q=Analyze and cross-verify this Hadith text statement across Sunni and Shia corpuses: ')}
+            aria-label="Verify Cross-Sect Hadith Text"
             className="px-8 py-3.5 bg-[#1a2e2a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#D4AF37] hover:text-white transition-all shadow-md"
           >
             Verify Cross-Sect Hadith Text
@@ -291,6 +294,6 @@ export default function HadithPage() {
         </section>
 
       </div>
-    </div>
+    </main>
   );
 }
