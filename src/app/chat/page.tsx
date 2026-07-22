@@ -32,7 +32,7 @@ function ChatContent() {
 
   const activeUser = {
     name: session?.user?.name || "Momin Seeker",
-    email: session?.user?.email || "seeker@sirat.ai"
+    email: session?.user?.email || "seeker@.siratai.com"
   };
   
   const [query, setQuery] = useState("");
@@ -125,7 +125,7 @@ function ChatContent() {
       }
     };
     
-    if (status === "authenticated" && session?.user?.email && activeUser.email !== "seeker@sirat.ai") {
+    if (status === "authenticated" && session?.user?.email && activeUser.email !== "seeker@siratai.com") {
       fetchHistory();
     } else if (status === "authenticated" && !session?.user?.email) {
       setSessions([]);
@@ -304,16 +304,20 @@ function ChatContent() {
         style={{ zIndex: 9999 }}
       >
         <div className="flex items-center justify-between mb-8 px-2 pt-6 lg:pt-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-sirat-gold rounded-lg shadow-md">
-              <Sparkles size={20} className="text-sirat-dark" />
-            </div>
-            <span className="text-xl font-black italic tracking-tighter uppercase">Sirat<span className="text-sirat-gold">.ai</span></span>
-          </div>
-          <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-full lg:hidden">
-            <ChevronLeft size={20} />
-          </button>
-        </div>
+  <div className="flex items-center gap-3">
+    {/* Custom Icon (icon.svg) */}
+    <div className="w-10 h-10 rounded-xl overflow-hidden border border-sirat-gold/40 shadow-lg flex items-center justify-center bg-[#040b09]">
+      <img src="/icon.svg" alt="Sirat AI Icon" className="w-full h-full object-cover" />
+    </div>
+    <div className="flex flex-col">
+      <span className="text-base font-black tracking-wider uppercase text-white">SIRAT</span>
+      <span className="text-[10px] font-semibold tracking-widest text-sirat-gold uppercase">AI Platform</span>
+    </div>
+  </div>
+  <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-full lg:hidden">
+    <ChevronLeft size={20} />
+  </button>
+</div>
 
         <button 
           onClick={() => { setCurrentSessionId(null); if (window.innerWidth < 1024) setIsSidebarOpen(false); }}
@@ -474,10 +478,10 @@ function ChatContent() {
           {currentSession?.messages?.map((msg, i) => (
             <div key={`msg-${i}`} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2 md:gap-3`}>
               {msg.role === 'ai' && (
-                 <div className="w-8 h-8 rounded-lg bg-sirat-gold shrink-0 flex items-center justify-center shadow-md mt-1">
-                   <Sparkles size={14} className="text-sirat-dark" />
-                 </div>
-              )}
+   <div className="w-8 h-8 rounded-lg overflow-hidden border border-sirat-gold/40 shadow-md flex items-center justify-center bg-[#040b09] shrink-0 mt-1">
+      <img src="/icon.svg" alt="Sirat AI" className="w-full h-full object-cover" />
+   </div>
+)}
 
               <div className={`max-w-[88%] sm:max-w-[80%] md:max-w-[70%] p-4 md:p-6 shadow-md transition-all relative ${
                 msg.role === 'user' 
