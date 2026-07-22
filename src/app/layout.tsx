@@ -9,11 +9,59 @@ import AuthProvider from "@/components/AuthProvider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
 
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.siratai.com'),
-  title: "Siratai | Authentic Islamic Wisdom & Digital Guidance",
-  description: "Get instant, verified answers from Al-Quran and Sahih Hadith.",
-};
+  title: {
+    default: "Sirat AI | Authentic Islamic Wisdom & Digital Guidance",
+    template: "%s | Sirat AI"
+  },
+  description: "Explore authentic Islamic scholarship, get instant verified answers from Al-Quran and Sahih Hadith on Sirat AI, and connect with a global community.",
+  keywords: ["Sirat AI", "Islamic AI platform", "Quran search AI", "Hadith finder", "Madinat al-Ilm", "Islamic digital sanctuary"],
+  authors: [{ name: "Sirat AI Team" }],
+  creator: "Sirat AI",
+  publisher: "Sirat AI",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://www.siratai.com',
+    siteName: 'Sirat AI',
+    title: 'Sirat AI | Authentic Islamic Wisdom & Digital Guidance',
+    description: 'Explore authentic Islamic scholarship and instant verified answers from Al-Quran and Sahih Hadith on Sirat AI.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Sirat AI - Gateway to Wisdom',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sirat AI | Authentic Islamic Wisdom',
+    description: 'Explore authentic Islamic scholarship and instant verified answers on Sirat AI.',
+    images: ['/og-image.jpg'],
+  },
+};     
+
+
+
+
+
+
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const websiteSchema = {

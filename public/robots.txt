@@ -4,7 +4,10 @@ User-agent: *
 Allow: /
 
 # Sitemap ka sahi path (siratai.com ke mutabiq)
-Sitemap: https://siratai.com/sitemap.xml
+Sitemap: https://www.siratai.com/sitemap.xml 
+
+
+
 
 # Private routes (Optional, agar aapke paas hain)
 Disallow: /api/
