@@ -5,11 +5,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image'; // <--- YE LINE ZAROORI THI JO ERROR FIX KAREGI
+import Image from 'next/image';
+import FunnelGateModal from '@/components/auth/FunnelGateModal';
 import { 
   Send, BookOpen, Scroll, Book, Library, 
-  Play, Home, Sparkles, ArrowUpRight, Heart, Globe, User, X, Menu,
-  Youtube, Facebook, Twitter, Instagram, ChevronRight, Mail, Phone, MapPin
+  Play, Sparkles, ArrowUpRight, Heart, Globe, User, X, CheckCircle2, ShieldCheck, Compass
 } from 'lucide-react';
 
 // --- 1. MONTHLY DONATION BANNER COMPONENT ---
@@ -27,7 +27,6 @@ function DonationBanner() {
     >
       <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-r from-[#b38b4d] via-[#d4af37] to-[#b38b4d] p-10 md:p-14 text-center text-white shadow-[0_30px_60px_-15px_rgba(212,175,55,0.3)]">
         
-        {/* Close Button */}
         <button 
           onClick={() => setIsVisible(false)}
           className="absolute right-8 top-8 text-white/70 hover:text-white transition-colors"
@@ -35,25 +34,23 @@ function DonationBanner() {
           <X size={24} />
         </button>
 
-        {/* Content */}
         <div className="max-w-3xl mx-auto space-y-8">
-          <h2 className="text-4xl md:text-5xl font-serif font-black tracking-tight italic">
-            Become a Monthly Donor
-          </h2>
+          <h3 className="text-4xl md:text-5xl font-serif font-black tracking-tight italic">
+            Support Global Islamic Wisdom
+          </h3>
           
           <p className="text-white/90 text-sm md:text-lg leading-relaxed font-medium">
-            Monthly donations help us improve <span className="font-bold underline decoration-white/30">Sirat.ai</span> and sustain operations so we focus less on fundraising and more on creating impact for the Ummah.
+            Your contributions help <span className="font-bold underline decoration-white/30">Sirat.ai</span> remain a free, accessible, and authentic digital hub for seekers worldwide.
           </p>
 
           <div className="pt-4">
             <button onClick={() => router.push('/support')} className="group relative inline-flex items-center gap-3 bg-[#1a2e2a] px-12 py-5 rounded-full font-black text-xs uppercase tracking-[0.2em] text-[#D4AF37] hover:bg-black transition-all active:scale-95 shadow-2xl">
               <Heart size={18} className="fill-[#D4AF37]" />
-              Donate now
+              Support The Mission
             </button>
           </div>
         </div>
 
-        {/* Subtle Background Sparkle */}
         <div className="absolute -left-10 -bottom-10 opacity-10 rotate-12 pointer-events-none">
           <Sparkles size={240} />
         </div>
@@ -66,36 +63,26 @@ function DonationBanner() {
 export default function SiratLandingPage() {
   const [query, setQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
-  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [isFunnelOpen, setIsFunnelOpen] = useState(false);
   const router = useRouter();
-  const [showWelcome, setShowWelcome] = useState(false);
-
-  useEffect(() => {
-    const hasVisited = localStorage.getItem("hasVisitedSirat");
-    if (!hasVisited) {
-      setShowWelcome(true);
-      localStorage.setItem("hasVisitedSirat", "true");
-    }
-  }, []);
 
   const handleSearch = () => {
     if (!query.trim()) return;
-    router.push(`/chat?q=${encodeURIComponent(query)}`);
-  };
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!subscriberEmail.trim()) return;
-    alert("JazakAllahu Khair! Subscription successful.");
-    setSubscriberEmail("");
+    const userName = localStorage.getItem("sirat_user_name");
+    if (!userName) {
+      setIsFunnelOpen(true);
+    } else {
+      router.push(`/chat?q=${encodeURIComponent(query)}`);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#fdfcf8] font-sans selection:bg-[#D4AF37] selection:text-white overflow-x-hidden flex flex-col justify-between">
       <Header setIsMobileMenuOpen={setIsMobileMenuOpen} />
       
+      <FunnelGateModal isOpen={isFunnelOpen} onClose={() => setIsFunnelOpen(false)} />
+
       {/* MOBILE OVERLAY DRAWER PANEL */}
-     {/* MOBILE OVERLAY DRAWER PANEL */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
@@ -124,7 +111,7 @@ export default function SiratLandingPage() {
             </div>
             
             <div className="flex flex-col gap-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2">Sirat Platform</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37] mb-2">Universal Hub</p>
               
               <a href="/quran" onClick={() => setIsMobileMenuOpen(false)} className="flex justify-between items-center group">
                 <span className="text-3xl font-serif italic text-white group-hover:text-[#D4AF37] transition-colors">Al-Quran</span>
@@ -155,7 +142,7 @@ export default function SiratLandingPage() {
                 Support Mission
               </button>
               <p className="text-center text-white/30 text-[10px] font-bold uppercase tracking-widest mt-6">
-                &copy; 2026 Sirat AI · Authentic Wisdom
+                &copy; 2026 Sirat AI · Universal Islamic Hub
               </p>
             </div>
           </motion.div>
@@ -163,19 +150,29 @@ export default function SiratLandingPage() {
       </AnimatePresence> 
 
       <main className="flex-grow">
-        {/* 2. HERO SECTION */}
-        <section className="relative min-h-[90vh] flex flex-col justify-center items-center py-20 px-4 overflow-hidden">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="absolute inset-0 w-full h-full object-cover z-0"
-          >
-            <source src="/hero-bg.mp4" type="video/mp4" />
-          </video>
+        
+        {/* 1. HERO SECTION - Wahi Hira Sacred Vector Background */}
+        <section className="relative min-h-[90vh] flex flex-col justify-center items-center py-20 px-4 overflow-hidden bg-[#071310]">
           
-          <div className="absolute inset-0 bg-[#FDFCF8]/70 backdrop-blur-[1px] z-10" />
+          <div className="absolute inset-0 opacity-40 pointer-events-none flex items-center justify-center overflow-hidden">
+            <svg className="w-[1100px] h-[1100px] text-[#D4AF37]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M300 0L480 350H120L300 0Z" fill="url(#heavenLight)" fillOpacity="0.7" />
+              <path d="M300 0L560 400H40L300 0Z" fill="url(#heavenLight)" fillOpacity="0.3" />
+              <path d="M0 600V380L120 300L180 330L260 220L340 350L420 270L520 390L600 350V600H0Z" fill="#040b09" />
+              <path d="M150 600V350L220 280L280 370L380 250L480 420L600 370V600H150Z" fill="#0b1a16" fillOpacity="0.9" />
+              <circle cx="300" cy="290" r="60" fill="#D4AF37" fillOpacity="0.5" filter="blur(20px)" />
+              <circle cx="300" cy="290" r="20" fill="#FFF" fillOpacity="0.95" filter="blur(6px)" />
+              <defs>
+                <linearGradient id="heavenLight" x1="300" y1="0" x2="300" y2="400" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#D4AF37" stopOpacity="1" />
+                  <stop offset="1" stopColor="#D4AF37" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#D4AF37]/15 blur-[150px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-emerald-500/15 blur-[120px] rounded-full pointer-events-none" />
 
           <motion.div 
             initial={{ y: 30, opacity: 0 }}
@@ -183,15 +180,28 @@ export default function SiratLandingPage() {
             transition={{ duration: 0.8 }}
             className="relative z-20 w-full max-w-4xl text-center"
           >
-            <div className="inline-flex items-center gap-2 bg-white/50 backdrop-blur-md px-5 py-2 rounded-full shadow-sm mb-10 border border-white/50">
-              <Sparkles size={16} className="text-[#D4AF37]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1a2e2a]/70">2026 AI Wisdom Engine</span>
+            <div className="text-center mb-8">
+              <p className="font-arabic text-[#D4AF37] text-2xl md:text-3xl font-bold tracking-wide mb-3 leading-loose drop-shadow-lg">
+                اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ
+              </p>
+              <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/90 italic drop-shadow">
+                "Read in the name of your Lord who created" (The First Revelation - Surah Al-Alaq 96:1)
+              </span>
             </div>
 
-            <h1 className="text-5xl md:text-8xl font-serif text-[#1a2e2a] mb-12 leading-[0.9] font-black tracking-tighter">
-              Authentic Wisdom.<br /> 
-              <span className="italic text-[#D4AF37]">Divine Light.</span>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-5 py-2 rounded-full shadow-sm mb-10 border border-white/15">
+              <Sparkles size={16} className="text-[#D4AF37]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Universal Digital Islamic Hub</span>
+            </div>
+
+            <h1 className="text-5xl md:text-8xl font-serif text-white mb-6 leading-[0.9] font-black tracking-tighter drop-shadow-lg">
+              Authentic Knowledge.<br /> 
+              <span className="italic text-[#D4AF37]">Universal Guidance.</span>
             </h1>
+
+            <p className="text-emerald-100/90 text-base md:text-xl max-w-2xl mx-auto mb-12 font-medium drop-shadow">
+              Explore Al-Quran, authentic Hadith, and reliable Islamic answers. Designed for every believer worldwide, free from divisions.
+            </p>
 
             <div className="relative max-w-2xl mx-auto mb-20 group">
               <input 
@@ -199,11 +209,13 @@ export default function SiratLandingPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="What would you like to learn today?"
-                className="w-full py-7 px-10 rounded-[2rem] border-none outline-none focus:ring-4 focus:ring-[#D4AF37]/20 bg-white/90 shadow-2xl text-lg transition-all text-gray-900"
+                placeholder="Ask any question about Islam, Quran, or Sunnah..."
+                aria-label="Search Islamic knowledge"
+                className="w-full py-7 px-10 rounded-[2rem] border-none outline-none focus:ring-4 focus:ring-[#D4AF37]/30 bg-white shadow-2xl text-lg transition-all text-gray-900"
               />
               <button 
                 onClick={handleSearch}
+                aria-label="Submit search"
                 className="absolute right-3 top-3 bottom-3 aspect-square bg-[#1a2e2a] text-[#D4AF37] rounded-[1.5rem] flex items-center justify-center hover:bg-black transition-all"
               >
                 <Send size={20} />
@@ -213,36 +225,98 @@ export default function SiratLandingPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto px-4">
               <ResourceCard icon={<BookOpen size={24}/>} title="Al-Quran" link="/quran" iconColor="text-emerald-600" />
               <ResourceCard icon={<Scroll size={24}/>} title="Hadith" link="/hadith" iconColor="text-amber-600" />
-              <ResourceCard icon={<Book size={24}/>} title="Fiqh" link="/fiqh" iconColor="text-sky-600" />
-              <ResourceCard icon={<Library size={24}/>} title="Siraat" link="/chat" iconColor="text-orange-600" /> 
+              <ResourceCard icon={<Book size={24}/>} title="Fiqh & Ethics" link="/fiqh" iconColor="text-sky-600" />
+              <ResourceCard icon={<Library size={24}/>} title="Sirat AI" link="/chat" iconColor="text-orange-600" /> 
             </div>
           </motion.div>
         </section>
 
-        {/* 3. EMERGENCY CHALLENGE BANNER */}
+        {/* 2. DAILY ROOHANI REFLECTION WIDGET (NEW FEATURE) */}
+        <section className="bg-[#0d1f1b] py-12 px-6 border-y border-[#D4AF37]/20 relative overflow-hidden">
+          <div className="max-w-4xl mx-auto bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-10 text-center text-white relative shadow-2xl backdrop-blur-md">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-[#0d1f1b] px-6 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-md">
+              Daily Ayah Reflection
+            </div>
+            <p className="font-arabic text-[#D4AF37] text-xl md:text-2xl font-bold mt-4 mb-3 leading-relaxed">
+              وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ
+            </p>
+            <p className="text-emerald-100/90 text-sm md:text-base italic max-w-2xl mx-auto mb-4">
+              "And whoever fears Allah - He will make for him a way out and will provide for him from where he does not expect." (Surah At-Talaq 65:2-3)
+            </p>
+            <button onClick={() => router.push('/chat?q=Tell me more about Surah At-Talaq verse 2')} className="inline-flex items-center gap-2 text-xs font-bold text-[#D4AF37] hover:underline uppercase tracking-widest">
+              Explore Tafsir with AI <ArrowUpRight size={14} />
+            </button>
+          </div>
+        </section>
+
+        {/* 3. COMMUNITY MISSION BANNER */}
         <motion.div 
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="bg-red-600 text-white py-4 px-6 text-center font-black uppercase tracking-[0.2em] text-[12px] flex flex-col md:flex-row items-center justify-center gap-4 shadow-xl border-b-4 border-red-800"
+          className="bg-[#1a2e2a] text-white py-4 px-6 text-center font-black uppercase tracking-[0.2em] text-[12px] flex flex-col md:flex-row items-center justify-center gap-4 shadow-xl border-b-4 border-[#D4AF37]/30"
         >
           <span className="flex items-center gap-2">
-            <Sparkles size={16} className="text-yellow-300" /> 
-            EMERGENCY FUNDRAISING: 7 DAYS REMAINING
+            <Globe size={16} className="text-[#D4AF37]" /> 
+            CONNECTING THE GLOBAL UMMAH THROUGH AUTHENTIC KNOWLEDGE
           </span>
-          <div className="flex gap-4 bg-white/10 text-white px-4 py-1 rounded-full font-mono text-[11px] border border-white/20">
-            <span>06d : 23h : 45m</span>
-          </div>
           <button 
             onClick={() => router.push('/support')} 
-            className="bg-white text-red-600 px-4 py-1 rounded-full font-bold hover:bg-gray-100 transition-colors"
+            className="bg-[#D4AF37] text-[#1a2e2a] px-5 py-1.5 rounded-full font-bold hover:brightness-110 transition-colors"
           >
-            BECOME A FOUNDING SUPPORTER →
+            SUPPORT THE PLATFORM →
           </button>
         </motion.div>
 
+        {/* 4. WHY SIRAT AI? (NEW TRUST & FEATURES SECTION) */}
+        <section className="py-24 px-6 bg-[#fdfcf8]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#D4AF37]">Uncompromised Authenticity</span>
+              <h2 className="text-4xl md:text-5xl font-serif font-black text-[#1A2E2A]">
+                Built for the Modern Seeker of Truth
+              </h2>
+              <p className="text-gray-600 text-sm md:text-base">
+                Every response and citation is thoroughly mapped to verified Quranic verses and Sahih Hadith databases.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all space-y-4 group">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <ShieldCheck size={28} />
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-[#1A2E2A]">Strictly Verified</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  No unverified rumors or weak narrations. All answers are anchored in authentic scholarly consensus.
+                </p>
+              </div>
+
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all space-y-4 group">
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                  <Compass size={28} />
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-[#1A2E2A]">Universal & Non-Sectarian</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  A pure sanctuary welcoming every believer worldwide, focused solely on the core teachings of Islam.
+                </p>
+              </div>
+
+              <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all space-y-4 group">
+                <div className="w-14 h-14 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-2xl group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                  <CheckCircle2 size={28} />
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-[#1A2E2A]">Instant Citations</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Get direct Surah and Ayah reference badges in every answer for easy verification and deeper reading.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <DonationBanner />
 
-        {/* 4. DAWAH SECTION */}
+        {/* 5. DAWAH SECTION */}
         <section className="bg-[#1a2e2a] text-white py-32 px-6 overflow-hidden">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-8">
@@ -255,7 +329,7 @@ export default function SiratLandingPage() {
                 <span className="text-emerald-400">on YouTube</span>
               </h2>
               <p className="text-emerald-100/70 text-lg max-w-md leading-relaxed">
-                Join our community of seekers. Watch thought-provoking episodes, Tafsir sessions, and heart-softening reminders.
+                Join our global community of seekers. Watch thought-provoking episodes, Tafsir sessions, and heart-softening reminders for everyday life.
               </p>
               <div className="flex gap-4 pt-4">
                 <a 
@@ -276,7 +350,7 @@ export default function SiratLandingPage() {
                <img 
                  src="https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1000" 
                  className="w-full h-full object-cover opacity-50 hover:opacity-70 transition-opacity duration-500" 
-                 alt="Dawah Sirat" 
+                 alt="Dawah Sirat YouTube Channel" 
                />
                <a 
                  href="https://www.youtube.com/@DawahSirat" 
@@ -294,91 +368,36 @@ export default function SiratLandingPage() {
           </div>
         </section>
 
-        {/* 5. MISSION PROGRESS */}
-        <section className="bg-[#1a2e2a] py-24 px-6 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#D4AF37]/5 blur-[120px] rounded-full -z-10" />
-
-          <div className="max-w-5xl mx-auto bg-[#fdfcf8] rounded-[4rem] p-10 md:p-20 text-[#1a2e2a] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] relative overflow-hidden group">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
-                <div className="space-y-2">
-                  <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-[10px]">Financial Transparency</p>
-                  <h2 className="text-5xl md:text-6xl font-serif font-black italic tracking-tighter">Mission Progress</h2>
-                </div>
-                <button 
-                  onClick={() => router.push('/support')}
-                  className="bg-[#1a2e2a] text-[#D4AF37] px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2"
-                >
-                  <Heart size={14} fill="currentColor" /> Fuel the Mission
-                </button>
-              </div>
-
-              <div className="space-y-6 mb-16">
-                 <div className="flex justify-between items-end">
-                    <div className="space-y-1">
-                      <span className="text-xs font-black uppercase opacity-40">Goal: $50,000</span>
-                      <p className="text-sm font-bold text-gray-400">Server & AI Training Costs</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-5xl font-serif italic font-black text-[#1a2e2a]">45%</span>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37] mt-1">Funds Raised</p>
-                    </div>
-                 </div>
-                 
-                 <div className="h-5 bg-gray-100 rounded-full overflow-hidden p-1.5 border border-gray-50 shadow-inner relative">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      whileInView={{ width: '45%' }}
-                      transition={{ duration: 2.5, ease: "circOut" }}
-                      className="h-full bg-gradient-to-r from-[#1a2e2a] to-[#D4AF37] rounded-full relative"
-                    >
-                      <div className="absolute inset-0 bg-white/20 animate-pulse" />
-                    </motion.div>
-                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-gray-100">
-                 <div className="space-y-1">
-                    <p className="text-2xl font-serif font-bold italic">$22.5k</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Received</p>
-                 </div>
-                 <div className="space-y-1">
-                    <p className="text-2xl font-serif font-bold italic">1,240</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Backers</p>
-                 </div>
-                 <div className="space-y-1">
-                    <p className="text-2xl font-serif font-bold italic">07 Days</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Remaining</p>
-                 </div>
-              </div>
-          </div>
-        </section>
-
+        {/* 6. GLOBAL IMPACT SECTION */}
         <section className="py-20 px-6 bg-[#fdfcf8]">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-serif font-black text-[#1A2E2A] text-center mb-16">
-              Seeking Guidance Across the Ummah
-            </h2>
+            <div className="text-center mb-16">
+              <p className="text-[#D4AF37] font-black uppercase tracking-[0.4em] text-xs mb-3">Universal Accessibility</p>
+              <h2 className="text-3xl md:text-5xl font-serif font-black text-[#1A2E2A]">
+                Seeking Guidance Across the Ummah
+              </h2>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <ImpactCard 
                 icon="🌙" 
-                title="Family Laws" 
+                title="Everyday Ethics" 
                 count="12,400+" 
-                description="Nikah, Divorce & Inheritance guidance based on Sharia."
+                description="Guidance on family values, character, and daily Sunnah etiquette."
                 theme={{ bg: "bg-[#FDF6E3]", divider: "bg-[#D4AF37]", dot: "bg-[#D4AF37]", btn: "bg-[#1A2E2A]" }}
               />
               <ImpactCard 
                 icon="⚖️" 
-                title="Zakat & Finance" 
+                title="Halal & Finance" 
                 count="8,200+" 
-                description="Halal Investment and Zakat calculations verified."
+                description="Transparent calculations and principles for ethical living."
                 theme={{ bg: "bg-[#E8F5E9]", divider: "bg-[#2D5A27]", dot: "bg-[#2D5A27]", btn: "bg-[#2D5A27]" }}
               />
               <ImpactCard 
                 icon="📜" 
-                title="Sunnah Ethics" 
+                title="Quran & Hadith" 
                 count="25,900+" 
-                description="Daily Adab and Akhlaq from authentic Sahih Hadith."
+                description="Direct access to verified verses and authentic traditions."
                 theme={{ bg: "bg-[#FFF8E1]", divider: "bg-[#D4AF37]", dot: "bg-[#D4AF37]", btn: "bg-[#D4AF37]" }}
               />
             </div>
@@ -387,44 +406,6 @@ export default function SiratLandingPage() {
       </main>
       
       <Footer/>
-
-      {/* Welcome Modal */}
-      <AnimatePresence>
-        {showWelcome && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowWelcome(false)}
-              className="absolute inset-0 bg-[#0a1a15]/95 backdrop-blur-xl" 
-            />
-
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative bg-[#0d1f1b] p-10 md:p-16 rounded-[4rem] w-full max-w-lg text-center border border-[#D4AF37]/30 shadow-[0_0_80px_rgba(212,175,55,0.2)] overflow-hidden"
-            >
-              <div className="relative z-10">
-                <h2 className="text-4xl md:text-5xl font-serif font-black text-white mb-6">
-                  Assalamu Alaikum, Momin!
-                </h2>
-                
-                <p className="text-emerald-100/80 leading-relaxed mb-10 text-lg italic">
-                  Welcome to <span className="text-[#D4AF37] font-bold">Siratai.com</span> — <br/>
-                  A digital sanctuary for authentic Islamic wisdom.
-                </p>
-
-                <button 
-                  onClick={() => { setShowWelcome(false); router.push('/dashboard'); }}
-                  className="group relative w-full bg-[#D4AF37] text-[#0a1a15] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:scale-[1.02] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.3)]"
-                >
-                  Enter Siratai Portal
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -468,7 +449,7 @@ function ImpactCard({ icon, title, count, description, theme }: any) {
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Solved</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Global Reach</p>
           <div className="text-2xl font-black text-[#1A2E2A]">{count}</div>
         </div>
         <p className="text-sm text-gray-600 leading-relaxed max-w-[120px]">{description}</p>

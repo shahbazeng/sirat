@@ -6,7 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { 
-  Send, Home, Loader2, Sparkles, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic, BookOpen, Volume2, ChevronLeft
+  Send, Home, Loader2, Sparkles, Menu, Plus, MessageSquare, LogOut, History, Trash2, Copy, Mic, BookOpen, Volume2, ChevronLeft, User, Heart, X, ArrowRight
 } from 'lucide-react';
 
 interface Message {
@@ -44,8 +44,9 @@ function ChatContent() {
   const [locationName, setLocationName] = useState<string>("Lahore");
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  // Dynamic Unique Storage Key per user token schema
   const userCacheKey = `sirat_chat_cache_${activeUser.email.replace(/[^a-zA-Z0-9]/g, "_")}`;
 
   useEffect(() => {
@@ -99,14 +100,13 @@ function ChatContent() {
     }
   }, [status]);
 
-  // FIXED INTERCEPT PIPELINE: Dependency array size aur items order ko strictly constant kar diya hai
   useEffect(() => {
     const fetchHistory = async () => {
       try {
         const res = await fetch(`${BASE_URL}/api/chat`, { 
-  method: 'GET',
-  credentials: 'include' // <--- Yeh line add karein
-});
+          method: 'GET',
+          credentials: 'include' 
+        });
         if (!res.ok) throw new Error("History security sync intercept.");
         const data = await res.json();
         
@@ -130,7 +130,6 @@ function ChatContent() {
     } else if (status === "authenticated" && !session?.user?.email) {
       setSessions([]);
     }
-    // FIXED DEPENDENCY SIZE: Mismatches block karne ke liye primitive variables use kiye hain jo array size constant rakhein ge
   }, [status, currentSessionId, userCacheKey, activeUser.email]);
 
   useEffect(() => {
@@ -220,17 +219,16 @@ function ChatContent() {
     setIsLoading(true);
 
     try {
-      // FIXED: credentials parameters yahan bhi add kiya
-const response = await fetch(`${BASE_URL}/api/chat`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  credentials: 'include', // <--- Yeh line add karein
-  body: JSON.stringify({ 
-    prompt: text, 
-    sessionId: currentSessionId,
-    userEmail: activeUser.email 
-  }),
-});
+      const response = await fetch(`${BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          prompt: text, 
+          sessionId: currentSessionId,
+          userEmail: activeUser.email 
+        }),
+      });
       const data = await response.json();
       if (data && data.id) {
         setSessions(prev => {
@@ -258,7 +256,29 @@ const response = await fetch(`${BASE_URL}/api/chat`, {
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
   if (status === "loading") {
-    return <div className="h-screen flex items-center justify-center bg-[#fdfcf8] font-black uppercase tracking-widest text-sirat-dark opacity-30">Synchronizing Momin Session Token...</div>;
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#071310] relative overflow-hidden">
+        <div className="absolute w-[500px] h-[500px] bg-[#D4AF37]/10 blur-[140px] rounded-full pointer-events-none" />
+        <div className="relative flex flex-col items-center gap-6 z-10">
+          <div className="relative w-24 h-24 flex items-center justify-center">
+            <div className="absolute inset-0 border-2 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin" />
+            <div className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#b38b4d] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.4)] animate-pulse">
+              <svg className="w-5 h-5 text-[#071310]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+              </svg>
+            </div>
+          </div>
+          <div className="text-center space-y-2">
+            <p className="font-arabic text-[#D4AF37] text-xl font-bold tracking-wider">
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </p>
+            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-emerald-100/70 animate-pulse">
+              Synchronizing Momin Session Token...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -343,23 +363,64 @@ const response = await fetch(`${BASE_URL}/api/chat`, {
           </div>
         </div>
 
-        {/* PROFILE CARD */}
-        <div className="pt-4 border-t border-white/10 shrink-0">
-          <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl mb-3 border border-white/5">
-            <div className="w-10 h-10 rounded-full bg-sirat-gold flex items-center justify-center text-sirat-dark font-black text-lg shrink-0 select-none">
+        {/* PROFILE CARD & INTERACTIVE DROPDOWN */}
+        <div className="pt-4 border-t border-white/10 shrink-0 relative">
+          
+          <AnimatePresence>
+            {isProfileMenuOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute bottom-20 left-0 right-0 bg-[#0d1f1b] border border-[#D4AF37]/30 rounded-2xl p-2 shadow-2xl z-50 space-y-1 text-white"
+              >
+                <div className="px-3 py-2 border-b border-white/10 mb-1">
+                  <p className="text-xs font-bold text-[#D4AF37]">Ummah Tier</p>
+                  <p className="text-[10px] opacity-60">Verified Seeker Plan</p>
+                </div>
+                
+                <button 
+                  onClick={() => { setIsProfileMenuOpen(false); setIsProfileModalOpen(true); }}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition-all text-left"
+                >
+                  <User size={14} className="text-[#D4AF37]" /> View Profile Details
+                </button>
+                
+                <button 
+                  onClick={() => { setIsProfileMenuOpen(false); router.push('/support'); }}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition-all text-left text-[#D4AF37]"
+                >
+                  <Heart size={14} className="fill-[#D4AF37]" /> Support & Donations
+                </button>
+
+                <div className="h-[1px] bg-white/10 my-1" />
+
+                <button 
+                  onClick={() => signOut({ callbackUrl: '/login' })}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl text-xs font-bold text-red-400 hover:bg-red-500/10 transition-all text-left"
+                >
+                  <LogOut size={14} /> Exit Sanctuary
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div 
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-2xl mb-3 border border-white/5 cursor-pointer transition-all group"
+          >
+            <div className="w-10 h-10 rounded-full bg-sirat-gold flex items-center justify-center text-sirat-dark font-black text-lg shrink-0 select-none shadow-md group-hover:scale-105 transition-transform">
               {activeUser.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-bold truncate">{activeUser.name}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-bold truncate">{activeUser.name}</p>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" title="Active Seeker" />
+              </div>
               <p className="text-[10px] opacity-50 truncate">{activeUser.email}</p>
             </div>
-          </div> 
-          <button 
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex items-center gap-3 w-full p-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm font-bold"
-          >
-            <LogOut size={18} /> Exit Sanctuary
-          </button>
+            <ChevronLeft size={16} className={`text-white/40 group-hover:text-white transition-transform -rotate-90 ${isProfileMenuOpen ? 'rotate-90' : ''}`} />
+          </div>
         </div>
       </aside>
 
@@ -443,7 +504,7 @@ const response = await fetch(`${BASE_URL}/api/chat`, {
               </div>
             </div>
           ))}
-            
+          
           {isLoading && (
             <div className="flex gap-3 items-start animate-pulse">
               <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
@@ -490,6 +551,66 @@ const response = await fetch(`${BASE_URL}/api/chat`, {
           </p>
         </footer>
       </div>
+
+      {/* ================= VIEW PROFILE DETAILS MODAL ================= */}
+      <AnimatePresence>
+        {isProfileModalOpen && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsProfileModalOpen(false)}
+              className="absolute inset-0 bg-[#040b09]/90 backdrop-blur-md" 
+            />
+
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} 
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-[#0d1f1b] border border-sirat-gold/30 p-8 md:p-10 rounded-[3rem] w-full max-w-md text-center text-white shadow-2xl overflow-hidden"
+            >
+              <button onClick={() => setIsProfileModalOpen(false)} className="absolute right-6 top-6 text-white/50 hover:text-white transition-colors">
+                <X size={22} />
+              </button>
+
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-sirat-gold to-amber-600 flex items-center justify-center text-sirat-dark font-black text-3xl mx-auto mb-4 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+                {activeUser.name.charAt(0).toUpperCase()}
+              </div>
+
+              <h3 className="text-2xl font-serif font-black tracking-tight mb-1">
+                {activeUser.name}
+              </h3>
+              <p className="text-sirat-gold text-xs font-bold tracking-widest uppercase mb-6">
+                Verified Ummah Seeker
+              </p>
+
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/5 space-y-3 text-left mb-6 text-xs">
+                <div className="flex justify-between">
+                  <span className="opacity-60">Email Account:</span>
+                  <span className="font-bold text-sirat-gold">{activeUser.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-60">Platform Access:</span>
+                  <span className="font-bold text-emerald-400">Full Access (Free Tier)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="opacity-60">Database Protocol:</span>
+                  <span className="font-bold">Secure Local & Cloud Sync</span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setIsProfileModalOpen(false)}
+                className="w-full bg-sirat-gold text-sirat-dark py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:brightness-110 transition-all shadow-lg"
+              >
+                Close Profile
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
@@ -497,9 +618,27 @@ const response = await fetch(`${BASE_URL}/api/chat`, {
 export default function ChatPage() {
   return (
     <SessionProvider>
-      <Suspense fallback={<div className="h-screen flex items-center justify-center font-black uppercase tracking-widest text-sirat-dark opacity-20">Sirat AI Loading...</div>}>
+      <Suspense fallback={
+        <div className="h-screen w-full flex flex-col items-center justify-center bg-[#071310] relative overflow-hidden">
+          <div className="absolute w-[500px] h-[500px] bg-[#D4AF37]/10 blur-[140px] rounded-full pointer-events-none" />
+          <div className="relative flex flex-col items-center gap-6 z-10">
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              <div className="absolute inset-0 border-2 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin" />
+              <div className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#b38b4d] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.4)] animate-pulse">
+                <svg className="w-5 h-5 text-[#071310]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-emerald-100/70 animate-pulse">
+              Sirat AI Loading...
+            </p>
+          </div>
+        </div>
+      }>
         <ChatContent />
       </Suspense>
     </SessionProvider>
   );
 }
+
